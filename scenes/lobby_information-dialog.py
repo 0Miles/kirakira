@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class LobbyInformationDialog():
+class LobbyInformationDialog(SceneBase):
     scene_id = "lobby_information-dialog"
     identification_images = [
         "scenes/lobby/information-dialog/dialog-title.png",

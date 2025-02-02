@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class MatchingDiethelmCreateDialog():
+class MatchingDiethelmCreateDialog(SceneBase):
     scene_id = "matching_diethelm_create-dialog"
     identification_images = [
         "scenes/matching/diethelm/create-dialog/title.png",

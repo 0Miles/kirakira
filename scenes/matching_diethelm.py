@@ -1,5 +1,5 @@
 import os
-from libs.classes.scene_base import SceneBase, scene
+from libs.classes.scene_base import SceneBase
 from utils.constants import TEMPLATES_DIR
 
 class MatchingDiethelm(SceneBase):

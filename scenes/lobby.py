@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class Lobby():
+class Lobby(SceneBase):
     scene_id = "lobby"
     identification_images = [
         "scenes/lobby/left-top.png",

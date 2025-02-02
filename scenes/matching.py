@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class Matching():
+class Matching(SceneBase):
     scene_id = "matching"
     identification_images = [
         "scenes/matching/title.png",

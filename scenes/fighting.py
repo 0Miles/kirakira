@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class Fighting():
+class Fighting(SceneBase):
     scene_id = "fighting"
     identification_images = [
         "scenes/fighting/turn.png",

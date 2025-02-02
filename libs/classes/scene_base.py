@@ -2,11 +2,6 @@ from libs.classes.button import Button
 from libs.classes.input import TextInput, Select, Checkbox
 from libs.scene_manager import SceneManager
 
-def scene(cls):
-    class NewClass(cls, SceneBase):
-        pass
-    return NewClass
-
 class SceneBase():
     scene_id: str
     identification_images: list

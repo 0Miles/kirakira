@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class MatchingDiethelmWatingDialog():
+class MatchingDiethelmWatingDialog(SceneBase):
     scene_id = "matching_diethelm_wating-dialog"
     identification_images = [
         "scenes/matching/title.png",

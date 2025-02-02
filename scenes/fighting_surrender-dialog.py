@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class FightingSurrenderDialog():
+class FightingSurrenderDialog(SceneBase):
     scene_id = "fighting_surrender-dialog"
     identification_images = [
         "scenes/fighting/surrender-dialog/dialog.png",

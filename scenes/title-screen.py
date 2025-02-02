@@ -1,7 +1,6 @@
-from libs.classes.scene_base import scene
+from libs.classes.scene_base import SceneBase
 
-@scene
-class TitleScreen():
+class TitleScreen(SceneBase):
     scene_id = "title-screen"
     identification_images = ["scenes/title-screen/click-to-start.png"]
     button_configs = [

@@ -35,7 +35,7 @@ def check_room_list(scene_manager: SceneManager):
             if (index + 2 < len(ocr_result) and ocr_result[index + 2]['text'].startswith('Lv.') and abs(item.get("position")[1] - ocr_result[index + 2].get("position")[1]) < 10):
                 match = re.match(r'^Lv\.\d+', ocr_result[index + 2]['text'])
                 guest_lv = match.group(0) if match else None
-                guest = ocr_result[index + 2]['text'][len(guest_lv):]
+                guest = ocr_result[index + 2]['text'][len(guest_lv):] if match else None
             room.append({
                 'owner': owner,
                 'owner_lv': owner_lv,
