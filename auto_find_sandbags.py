@@ -26,23 +26,36 @@ if __name__ == "__main__":
 
         scene_manager.update_scene()
         if scene_manager.currentScene:
-            # 打開創建房間對話框時，自動填入房間名稱、選擇規則
-            if scene_manager.currentScene.scene_id == "matching_diethelm_create-dialog":
+            if scene_manager.currentScene.scene_id == "title-screen":
+                scene_manager.currentScene.buttons["start"].click()
+                time.sleep(3)
+            elif scene_manager.currentScene.scene_id == "lobby_information-dialog":
+                scene_manager.currentScene.buttons["ok"].click()
+                time.sleep(.5)
+            elif scene_manager.currentScene.scene_id == "lobby":
+                scene_manager.currentScene.buttons["duel"].click()
+                time.sleep(1)
+            elif scene_manager.currentScene.scene_id == "matching":
+                scene_manager.currentScene.buttons["diethelm"].click()
+                time.sleep(1)
+            elif scene_manager.currentScene.scene_id == "matching_diethelm":
+                scene_manager.currentScene.buttons["create"].click()
+
+            elif scene_manager.currentScene.scene_id == "matching_diethelm_create-dialog":
                 scene_manager.currentScene.inputs["select-rule"].select_option("scenes/matching/diethelm/create-dialog/option-3v3.png")
                 time.sleep(.1)
-                scene_manager.currentScene.inputs["text-room-name"].change_text("徵投降包 感謝")
+                scene_manager.currentScene.inputs["text-room-name"].change_text("私")
+                time.sleep(.1)
+                scene_manager.currentScene.inputs["checkbox-friend"].click()
                 time.sleep(.1)
                 scene_manager.currentScene.buttons["corner"].click()
                 scene_manager.currentScene.buttons["ok"].click()
 
             elif scene_manager.currentScene.scene_id == "matching_diethelm_wating-dialog":
-                room_list = check_room_list()
+                room_list = check_room_list(scene_manager)
                 print(room_list)
                 if not any(room['owner'] == '燈心草' for room in room_list):
                     scene_manager.currentScene.buttons["cancel"].click()
-            
-            elif scene_manager.currentScene.scene_id == "matching_diethelm":
-                scene_manager.currentScene.buttons["create"].click()
             
         time.sleep(.3)
 
