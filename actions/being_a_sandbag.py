@@ -45,7 +45,10 @@ class BeingASandbag(ActionBase):
             elif self.scene_manager.currentScene.scene_id == "fighting_surrender-dialog":
                 self.scene_manager.currentScene.buttons["ok"].click()
                 self.stop()
+                self.game.close_app()
             # 異常畫面
             elif self.scene_manager.currentScene.scene_id == "error":
                 self.game.close_app()
+                self.stop()
+            else:
                 self.stop()
