@@ -1,7 +1,5 @@
-import os
 import pyautogui
 from typing import TYPE_CHECKING
-from libs.constants import TEMPLATES_DIR
 
 if TYPE_CHECKING:
     from libs.scene_manager import SceneManager

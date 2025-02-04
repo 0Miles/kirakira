@@ -1,6 +1,4 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
-import time
 import os
 import json
 import importlib
@@ -64,16 +62,14 @@ class SceneManager:
                 return sub_scene if sub_scene else scene
         return None
 
-    async def refresh_async(self, scene: 'Scene'):
-        loop = asyncio.get_event_loop()
-        with ThreadPoolExecutor() as pool:
-            await loop.run_in_executor(pool, self.refresh, scene)
+    def scene_has_changed(self):
+        return self.currentScene and self.prevAvailableScene and self.currentScene.scene_id != self.prevAvailableScene.scene_id
 
-    def refresh(self):
+    async def refresh(self):
         window_geometry = self.game.get_window_geometry()
         if not window_geometry:
             print("[ERROR] 無法獲取視窗大小與位置。")
-            time.sleep(3)
+            await asyncio.sleep(3)
             return
 
         screenshot = self.game.capture_screen()
