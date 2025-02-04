@@ -12,6 +12,9 @@ class BeingASandbag(ActionBase):
             if self.scene_manager.currentScene.scene_id == "title-screen":
                 self.scene_manager.currentScene.buttons["start"].click()
                 await asyncio.sleep(3)
+            # 載入中
+            elif self.scene_manager.currentScene.scene_id == "now-loading":
+                await asyncio.sleep(1)
             # 遊戲大廳 - 資訊彈窗
             elif self.scene_manager.currentScene.scene_id == "lobby_information-dialog":
                 self.scene_manager.currentScene.buttons["ok"].click()
