@@ -1,0 +1,30 @@
+{
+    "identification_images": [
+        "scenes/matching/title.png",
+        [
+            "scenes/use-item-dialog/button-close.png",
+            "scenes/use-item-dialog/button-close-hover.png"
+        ],
+        "scenes/use-item-dialog/dotted-line.png"
+    ],
+    "button_configs": [
+        {
+            "id": "close",
+            "template": [
+                "scenes/use-item-dialog/button-close.png",
+                "scenes/use-item-dialog/button-close-hover.png"
+            ]
+        },
+        {
+            "id": "use",
+            "template": [
+                "scenes/use-item-dialog/button-use.png",
+                "scenes/use-item-dialog/button-use-hover.png"
+            ]
+        },
+        {
+            "id": "green-tea",
+            "template": ["scenes/use-item-dialog/green-tea.png"]
+        }
+    ]
+}

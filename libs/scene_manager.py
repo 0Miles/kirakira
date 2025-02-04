@@ -18,6 +18,7 @@ class SceneManager:
         self.ocr_processor = OCRProcessor()
         self.scenes: Dict[str, 'Scene'] = self.load_scenes()
         self.game = game
+        self.extra_info = {}
 
     def match_template(self, screenshot, template_path, threshold=0.8):
         return self.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, template_path), threshold)

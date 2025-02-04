@@ -5,6 +5,7 @@ import config
 
 class FindSandbag(ActionBase):
     async def process(self):
+
         await self.scene_manager.refresh()
         
         if self.scene_manager.currentScene:
@@ -29,8 +30,28 @@ class FindSandbag(ActionBase):
                 await asyncio.sleep(1)
             # 匹配畫面(迪特赫姆)
             elif self.scene_manager.currentScene.scene_id == "matching_diethelm":
-                self.scene_manager.currentScene.buttons["create"].click()
-                await asyncio.sleep(.5)
+                if not self.scene_manager.extra_info.get("ap-not-enough", False):
+                    self.scene_manager.currentScene.buttons["create"].click()
+                    await asyncio.sleep(.5)
+                else:
+                    self.scene_manager.currentScene.buttons["item"].click()
+                    await asyncio.sleep(2)
+            # 匹配畫面(迪特赫姆) - 使用道具
+            elif self.scene_manager.currentScene.scene_id == "matching_diethelm_use-item-dialog":
+                has_green_tea = self.scene_manager.currentScene.buttons["green-tea"].click()
+                await asyncio.sleep(1)
+                if has_green_tea:
+                    use_success = self.scene_manager.currentScene.buttons["use"].click()
+                    if use_success:
+                        self.scene_manager.extra_info["ap-not-enough"] = False
+                    else:
+                        self.scene_manager.extra_info["green-tea-not-enough"] = True
+                        self.scene_manager.currentScene.buttons["close"].click()
+                        self.stop()
+                        return
+                    await asyncio.sleep(.5)
+                self.scene_manager.currentScene.buttons["close"].click()
+                await asyncio.sleep(2)
             # 匹配畫面(迪特赫姆) - 創建房間
             elif self.scene_manager.currentScene.scene_id == "matching_diethelm_create-dialog":
                 self.scene_manager.currentScene.inputs["select-rule"].select_option("scenes/matching/diethelm/create-dialog/option-3v3.png")
@@ -52,6 +73,7 @@ class FindSandbag(ActionBase):
             # 匹配畫面(迪特赫姆) - AP不足
             elif self.scene_manager.currentScene.scene_id == "matching_diethelm_ap-not-enough-dialog":
                 self.scene_manager.currentScene.buttons["ok"].click()
+                self.scene_manager.extra_info["ap-not-enough"] = True
                 await asyncio.sleep(1)
             # 戰鬥 - 畫面
             elif self.scene_manager.currentScene.scene_id == "fighting":
@@ -61,6 +83,10 @@ class FindSandbag(ActionBase):
             elif self.scene_manager.currentScene.scene_id == "fighting_surrender-dialog":
                 self.scene_manager.currentScene.buttons["ok"].click()
                 await asyncio.sleep(1)
+                self.stop()
+            # 異常畫面
+            elif self.scene_manager.currentScene.scene_id == "error":
+                self.game.close_app()
                 self.stop()
             else:
                 await asyncio.sleep(1)

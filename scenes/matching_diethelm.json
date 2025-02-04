@@ -20,6 +20,12 @@
                 "scenes/matching/diethelm/button-enter.png",
                 "scenes/matching/diethelm/button-enter-hover.png"
             ]
+        },
+        {
+            "id": "item",
+            "template": [
+                "scenes/matching/diethelm/button-item.png"
+            ]
         }
     ]
 }

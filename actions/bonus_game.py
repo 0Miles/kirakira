@@ -36,5 +36,9 @@ class BonusGame(ActionBase):
                 self.stop()
             elif self.scene_manager.currentScene.scene_id == "result_bonus-failed_use-item-dialog":
                 await asyncio.sleep(.5)
+            # 異常畫面
+            elif self.scene_manager.currentScene.scene_id == "error":
+                self.game.close_app()
+                self.stop()
             else:
                 self.stop()
