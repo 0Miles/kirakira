@@ -1,7 +1,6 @@
 import subprocess
 import time
 import psutil
-import os
 
 class SteamControl:
     def __init__(self, game_id):

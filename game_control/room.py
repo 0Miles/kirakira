@@ -5,7 +5,7 @@ import time
 import pyautogui
 
 from libs.scene_manager import SceneManager
-from utils.constants import TEMPLATES_DIR
+from libs.constants import TEMPLATES_DIR
 
 
 def check_room_list(scene_manager: SceneManager):

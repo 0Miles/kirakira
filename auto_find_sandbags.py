@@ -24,7 +24,7 @@ if __name__ == "__main__":
                 time.sleep(5)
             print("[TEST] 遊戲啟動完成。")
 
-        scene_manager.update_scene()
+        scene_manager.refresh()
         if scene_manager.currentScene:
             if scene_manager.currentScene.scene_id == "title-screen":
                 scene_manager.currentScene.buttons["start"].click()
@@ -44,10 +44,11 @@ if __name__ == "__main__":
             elif scene_manager.currentScene.scene_id == "matching_diethelm_create-dialog":
                 scene_manager.currentScene.inputs["select-rule"].select_option("scenes/matching/diethelm/create-dialog/option-3v3.png")
                 time.sleep(.1)
-                scene_manager.currentScene.inputs["text-room-name"].change_text("私")
+                # scene_manager.currentScene.inputs["text-room-name"].change_text("私")
+                scene_manager.currentScene.inputs["text-room-name"].change_text("徵投降包 感謝")
                 time.sleep(.1)
-                scene_manager.currentScene.inputs["checkbox-friend"].click()
-                time.sleep(.1)
+                # scene_manager.currentScene.inputs["checkbox-friend"].click()
+                # time.sleep(.1)
                 scene_manager.currentScene.buttons["corner"].click()
                 scene_manager.currentScene.buttons["ok"].click()
 

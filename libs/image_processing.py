@@ -3,10 +3,6 @@ import numpy as np
 import os
 
 class ImageProcessor:
-    def __init__(self):
-        """ 初始化圖像處理器 """
-        pass
-    
     def load_image(self, image_path):
         """
         加載圖像。

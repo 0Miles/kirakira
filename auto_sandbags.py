@@ -7,7 +7,7 @@ from libs.steam_control import SteamControl
 from libs.app_control import AppControl
 from libs.scene_manager import SceneManager
 
-from utils.constants import TEMPLATES_DIR
+from libs.constants import TEMPLATES_DIR
 
 if __name__ == "__main__":
     print("[TEST] 初始化 Steam 和遊戲控制...")
@@ -28,7 +28,7 @@ if __name__ == "__main__":
                 time.sleep(5)
             print("[TEST] 遊戲啟動完成。")
 
-        scene_manager.update_scene()
+        scene_manager.refresh()
         if scene_manager.currentScene:
             if scene_manager.currentScene.scene_id == "title-screen":
                 scene_manager.currentScene.buttons["start"].click()

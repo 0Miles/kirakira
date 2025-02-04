@@ -2,15 +2,16 @@ import os
 import time
 import pyautogui
 import pyperclip
+from typing import List, Union, Tuple, TYPE_CHECKING
+from libs.constants import TEMPLATES_DIR
 
-from libs.scene_manager import SceneManager
-from utils.constants import TEMPLATES_DIR
-
+if TYPE_CHECKING:
+    from libs.scene_manager import SceneManager
 
 class Input:
-    scene_manager: SceneManager
-    
-    def __init__(self, input_id, label_template, offset, input_template, position, scene_manager):
+    def __init__(self, input_id: str, label_template: Union[str, List[str]], 
+                 offset: Tuple[int, int], input_template: Union[str, List[str]], 
+                 position: str, scene_manager: 'SceneManager'):
         self.input_id = input_id
         self.label_template = label_template if isinstance(label_template, list) else [label_template]
         self.offset = offset
@@ -18,7 +19,7 @@ class Input:
         self.position = position  # 指定Input相對於標籤的位置 ('top', 'bottom', 'left', 'right')
         self.scene_manager = scene_manager
 
-    def find_input(self):
+    def find_input(self) -> Tuple[int, int, int, int]:
         """ 找到Input的位置 """
         screenshot = self.scene_manager.game.capture_screen()
         
@@ -80,7 +81,7 @@ class Input:
         print(f"[WARNING] 未找到Input {self.input_template} 附近標籤 {self.label_template}")
         return None
 
-    def click(self):
+    def click(self) -> bool:
         position = self.find_input()
         if position:
             x, y, w, h = position
@@ -95,7 +96,7 @@ class Input:
 
 
 class TextInput(Input):
-    def get_text(self):
+    def get_text(self) -> str:
         """ 讀取Input中的文字 """
         position = self.find_input()
         if position:
@@ -106,7 +107,7 @@ class TextInput(Input):
         print(f"[WARNING] 無法讀取Input {self.input_id} 內的文字")
         return ""
     
-    def change_text(self, text):
+    def change_text(self, text: str) -> bool:
         """ 更改Input內的文字 """
         if self.click():
             pyperclip.copy(text)
@@ -119,7 +120,7 @@ class TextInput(Input):
 
 
 class Select(Input):
-    def select_option(self, option_template):
+    def select_option(self, option_template: str) -> bool:
         """ 選擇下拉選單中的選項 """
         if self.click():
             time.sleep(.5)
@@ -139,10 +140,14 @@ class Select(Input):
 
 
 class Checkbox(Input):
-    def __init__(self, input_id, label_template, offset, input_template, position, checked_template, scene_manager):
+    def __init__(self, input_id: str, label_template: Union[str, List[str]], 
+                 offset: Tuple[int, int], input_template: Union[str, List[str]], 
+                 position: str, checked_template: Union[str, List[str]], 
+                 scene_manager: 'SceneManager'):
         super().__init__(input_id, label_template, offset, input_template, position, scene_manager)
         self.checked_template = checked_template if isinstance(checked_template, list) else [checked_template]
-    def is_checked(self):
+    
+    def is_checked(self) -> bool:
         """ 判斷Checkbox是否已勾選 """
         screenshot = self.scene_manager.game.capture_screen()
         matches = []
@@ -152,12 +157,12 @@ class Checkbox(Input):
             )
         return bool(matches)
     
-    def toggle(self):
+    def toggle(self) -> None:
         """ 切換Checkbox的狀態 """
         self.click()
         print(f"[INFO] 切換Checkbox {self.input_id}")
     
-    def set_checked(self, state: bool):
+    def set_checked(self, state: bool) -> None:
         """ 設定Checkbox狀態 (勾選/取消勾選) """
         if self.is_checked() != state:
             self.toggle()

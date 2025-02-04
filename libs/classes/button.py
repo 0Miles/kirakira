@@ -1,14 +1,13 @@
 import os
-
 import pyautogui
+from typing import TYPE_CHECKING
+from libs.constants import TEMPLATES_DIR
 
-from libs.scene_manager import SceneManager
-from utils.constants import TEMPLATES_DIR
-
+if TYPE_CHECKING:
+    from libs.scene_manager import SceneManager
 
 class Button:
-    scene_manager: SceneManager
-    def __init__(self, button_id, template, scene_manager):
+    def __init__(self, button_id, template, scene_manager: 'SceneManager'):
         self.button_id = button_id
         self.template = template if isinstance(template, list) else [template]
         self.scene_manager = scene_manager
