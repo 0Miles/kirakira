@@ -32,8 +32,7 @@ class Input:
 
             template_ocr_text = template_ocr_result[0].get("text", "")
 
-            label_matches = self.scene_manager.image_processor.match_template(
-                screenshot, os.path.join(TEMPLATES_DIR, template), threshold=0.8)
+            label_matches = self.scene_manager.match_template(screenshot, template)
             if label_matches:
                 # 遍歷匹配的標籤
                 for x, y, w, h in label_matches:
@@ -58,8 +57,7 @@ class Input:
         closest_input = None
         min_distance = float("inf")
         for template in self.input_template:
-            input_matches = self.scene_manager.image_processor.match_template(
-                screenshot, os.path.join(TEMPLATES_DIR, template), threshold=0.8)
+            input_matches = self.scene_manager.match_template(screenshot, template)
             for input_x, input_y, input_w, input_h in input_matches:
                 if self.position == "left":
                     distance = abs((input_x + input_w) - label_x) + abs(input_y - label_y)
@@ -125,8 +123,7 @@ class Select(Input):
         if self.click():
             time.sleep(.5)
             screenshot = self.scene_manager.game.capture_screen()
-            option_matches = self.scene_manager.image_processor.match_template(
-                screenshot, os.path.join(TEMPLATES_DIR, option_template), threshold=0.8)
+            option_matches = self.scene_manager.match_template(screenshot, option_template)
             if option_matches:
                 x, y, w, h = option_matches[0]
                 window_geometry = self.scene_manager.game.get_window_geometry()
@@ -152,9 +149,7 @@ class Checkbox(Input):
         screenshot = self.scene_manager.game.capture_screen()
         matches = []
         for template in self.checked_template:
-            matches.extend(self.scene_manager.image_processor.match_template(
-                screenshot, os.path.join(TEMPLATES_DIR, template), threshold=0.8)
-            )
+            matches.extend(self.scene_manager.match_template(screenshot, template))
         return bool(matches)
     
     def toggle(self) -> None:

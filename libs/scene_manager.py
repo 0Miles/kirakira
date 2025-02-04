@@ -21,6 +21,9 @@ class SceneManager:
         self.scenes: Dict[str, 'Scene'] = self.load_scenes()
         self.game = game
 
+    def match_template(self, screenshot, template_path, threshold=0.8):
+        return self.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, template_path), threshold)
+
     def load_scenes(self) -> Dict[str, 'Scene']:
         scenes = {}
         if os.path.exists(SCENES_DIR):
@@ -52,7 +55,7 @@ class SceneManager:
                 continue
             required_images = scene.identification_images
             match_all = all(
-                any(self.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, img), threshold=0.9)
+                any(self.match_template(screenshot, img, threshold=0.9)
                     for img in (img_list if isinstance(img_list, list) else [img_list]))
                 for img_list in required_images
             )
@@ -60,7 +63,7 @@ class SceneManager:
                 sub_scene = self.find_matching_scene(screenshot, scene_id)
                 return sub_scene if sub_scene else scene
         return None
-    
+
     async def refresh_async(self, scene: 'Scene'):
         loop = asyncio.get_event_loop()
         with ThreadPoolExecutor() as pool:

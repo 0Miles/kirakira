@@ -79,20 +79,3 @@ class ImageProcessor:
         """ 儲存 OpenCV 圖像 """
         cv2.imwrite(filename, image)
         print(f"已儲存截圖: {filename}")
-
-if __name__ == "__main__":
-    processor = ImageProcessor()
-    image_path = "test_image.png"
-    template_path = "template.png"
-    
-    try:
-        image = processor.load_image(image_path)
-        template = processor.load_image(template_path)
-        matches = processor.match_template(image, template_path)
-        
-        if matches:
-            print("匹配成功: ", matches)
-        else:
-            print("未找到匹配結果")
-    except Exception as e:
-        print("發生錯誤:", e)

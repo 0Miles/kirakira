@@ -18,9 +18,7 @@ class Button:
             screenshot = self.scene_manager.game.capture_screen()
             
             for template in self.template:
-                matches = self.scene_manager.image_processor.match_template(
-                    screenshot, os.path.join(TEMPLATES_DIR, template)
-                )
+                matches = self.scene_manager.match_template(screenshot, template)
                 if matches:
                     # 計算目標按鈕在畫面中的坐標
                     x, y, w, h = matches[0]  # 取第一個匹配結果

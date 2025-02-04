@@ -11,7 +11,7 @@ from libs.constants import TEMPLATES_DIR
 def check_room_list(scene_manager: SceneManager):
     screenshot = scene_manager.game.capture_screen()
     # 取得 title 的位置
-    matches = scene_manager.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, "scenes/matching/title.png"), threshold=0.8)
+    matches = scene_manager.match_template(screenshot, "scenes/matching/title.png")
     if not matches:
         return None
     title_x, title_y, title_w, title_h = matches[0]
@@ -53,7 +53,7 @@ def check_room_list(scene_manager: SceneManager):
 def check_room_info(scene_manager: SceneManager):
     screenshot = scene_manager.game.capture_screen()
     # 取得 title 的位置
-    matches = scene_manager.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, "scenes/matching/title.png"), threshold=0.8)
+    matches = scene_manager.match_template(screenshot, "scenes/matching/title.png")
     if not matches:
         return None
     title_x, title_y, title_w, title_h = matches[0]
