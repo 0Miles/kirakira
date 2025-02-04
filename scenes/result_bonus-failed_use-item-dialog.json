@@ -1,0 +1,26 @@
+{
+    "identification_images": [
+        "scenes/result/result.png",
+        [
+            "scenes/result/bonus-failed/use-item-dialog/button-close.png",
+            "scenes/result/bonus-failed/use-item-dialog/button-close-hover.png"
+        ],
+        "scenes/result/bonus-failed/use-item-dialog/dotted-line.png"
+    ],
+    "button_configs": [
+        {
+            "id": "close",
+            "template": [
+                "scenes/result/bonus-failed/use-item-dialog/button-close.png",
+                "scenes/result/bonus-failed/use-item-dialog/button-close-hover.png"
+            ]
+        },
+        {
+            "id": "use",
+            "template": [
+                "scenes/result/bonus-failed/use-item-dialog/button-use.png",
+                "scenes/result/bonus-failed/use-item-dialog/button-use-hover.png"
+            ]
+        }
+    ]
+}

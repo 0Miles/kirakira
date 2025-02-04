@@ -1,0 +1,29 @@
+{
+    "identification_images": [
+        "scenes/result/result.png",
+        [
+            "scenes/result/bonus-highlow/button-high.png",
+            "scenes/result/bonus-highlow/button-high-hover.png"
+        ],
+        [
+            "scenes/result/bonus-highlow/button-low.png",
+            "scenes/result/bonus-highlow/button-low-hover.png"
+        ]
+    ],
+    "button_configs": [
+        {
+            "id": "high",
+            "template": [
+                "scenes/result/bonus-highlow/button-high.png",
+                "scenes/result/bonus-highlow/button-high-hover.png"
+            ]
+        },
+        {
+            "id": "low",
+            "template": [
+                "scenes/result/bonus-highlow/button-low.png",
+                "scenes/result/bonus-highlow/button-low-hover.png"
+            ]
+        }
+    ]
+}

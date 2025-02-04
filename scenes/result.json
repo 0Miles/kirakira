@@ -1,0 +1,14 @@
+{
+    "identification_images": [
+        "scenes/result/result.png"
+    ],
+    "button_configs": [
+        {
+            "id": "ok",
+            "template": [
+                "scenes/result/button-ok.png",
+                "scenes/result/button-ok-hover.png"
+            ]
+        }
+    ]
+}

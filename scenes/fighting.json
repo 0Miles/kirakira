@@ -10,6 +10,14 @@
     ],
     "button_configs": [
         {
+            "id": "ok",
+            "template": [
+                "scenes/fighting/button-ok.png",
+                "scenes/fighting/button-ok-disabled.png",
+                "scenes/fighting/button-ok-hover.png"
+            ]
+        },
+        {
             "id": "surrender",
             "template": [
                 "scenes/fighting/button-surrender.png",

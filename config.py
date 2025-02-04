@@ -8,3 +8,14 @@ STEAM_GAME_ID = "3247080"  # 遊戲的 Steam 應用 ID
 
 # Steam 設定
 STEAM_EXECUTABLE_PATH = r"C:\\Program Files (x86)\\Steam\\Steam.exe"  # Steam 執行檔路徑
+
+# 模式
+SCRIPT_MODE = "find_sandbag"
+
+# 自動沙包設定
+AUTO_SANDBAG_TARGET_USERNAME = "燈心草"
+
+# 自動找沙包設定
+FIND_SANDBAG_USERNAME = "燈心草"
+FIND_SANDBAG_ROOM_NAME = "徵投降包 感謝"
+FIND_SANDBAG_FRIEND_ONLY = False
