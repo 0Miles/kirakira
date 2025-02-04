@@ -5,7 +5,6 @@ import config
 
 class FindSandbag(ActionBase):
     async def process(self):
-
         await self.scene_manager.refresh()
         
         if self.scene_manager.currentScene:
@@ -31,7 +30,14 @@ class FindSandbag(ActionBase):
             # 匹配畫面(迪特赫姆)
             elif self.scene_manager.currentScene.scene_id == "matching_diethelm":
                 if not self.scene_manager.extra_info.get("ap-not-enough", False):
-                    self.scene_manager.currentScene.buttons["create"].click()
+                    click_success = self.scene_manager.currentScene.buttons["create"].click()
+                    if not click_success:
+                        self.scene_manager.extra_info["failed_count"] = self.scene_manager.extra_info.get("failed_count", 0) + 1
+                        if self.scene_manager.extra_info["failed_count"] > 20:
+                            self.game.close_app()
+                            self.stop()
+                    else:
+                        self.scene_manager.extra_info["failed_count"] = 0
                     await asyncio.sleep(.5)
                 else:
                     self.scene_manager.currentScene.buttons["item"].click()

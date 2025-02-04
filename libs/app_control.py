@@ -46,15 +46,18 @@ class AppControl:
             print(f"{self.app_names} 未在運行。")
     
     def focus_window(self):
-        if self.window_title:
-            windows = gw.getWindowsWithTitle(self.window_title)
-            if windows:
-                windows[0].activate()
-                print(f"已將 {self.window_title} 視窗置於前台。")
+        try:
+            if self.window_title:
+                windows = gw.getWindowsWithTitle(self.window_title)
+                if windows:
+                    windows[0].activate()
+                    print(f"已將 {self.window_title} 視窗置於前台。")
+                else:
+                    print(f"找不到視窗: {self.window_title}")
             else:
-                print(f"找不到視窗: {self.window_title}")
-        else:
-            print("未指定視窗標題。")
+                print("未指定視窗標題。")
+        except Exception as e:
+            print("發生錯誤:", e)
 
     def get_window_geometry(self):
         if self.window_title:
