@@ -1,0 +1,12 @@
+{
+    "identification_images": [
+        "scenes/matching/diethelm/ap-not-enough-dialog/title.png",
+        "scenes/matching/diethelm/ap-not-enough-dialog/dialog.png"
+    ],
+    "button_configs": [
+        {
+            "id": "ok",
+            "template": ["scenes/button-ok.png", "scenes/button-ok-hover.png"]
+        }
+    ]
+}

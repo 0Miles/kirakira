@@ -49,9 +49,14 @@ class FindSandbag(ActionBase):
                 print(room_list)
                 if not any(room["owner"] == config.FIND_SANDBAG_USERNAME for room in room_list):
                     self.scene_manager.currentScene.buttons["cancel"].click()
+            # 匹配畫面(迪特赫姆) - AP不足
+            elif self.scene_manager.currentScene.scene_id == "matching_diethelm_ap-not-enough-dialog":
+                self.scene_manager.currentScene.buttons["ok"].click()
+                await asyncio.sleep(1)
             # 戰鬥 - 畫面
             elif self.scene_manager.currentScene.scene_id == "fighting":
                 self.scene_manager.currentScene.buttons["ok"].click()
+                await asyncio.sleep(1)
             # 戰鬥 - 投降成功彈窗
             elif self.scene_manager.currentScene.scene_id == "fighting_surrender-dialog":
                 self.scene_manager.currentScene.buttons["ok"].click()

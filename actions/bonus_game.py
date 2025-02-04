@@ -1,5 +1,5 @@
-from game_control.room import check_room_list
 from libs.classes.action_base import ActionBase
+from game_control.bonus import check_bonus_info
 import asyncio
 import config
 
@@ -14,20 +14,27 @@ class BonusGame(ActionBase):
                 await asyncio.sleep(3)
             # 獎勵遊戲 - 選擇
             elif self.scene_manager.currentScene.scene_id == "result_bonus-select":
-
-                print("獎勵遊戲 - 選擇")
+                bonus_info = check_bonus_info(self.scene_manager)
+                current_bonus = bonus_info.get("current_bonus")
+                if (current_bonus == "green-tea" or current_bonus == "gem"):
+                    self.scene_manager.currentScene.buttons["get"].click()
+                else:
+                    self.scene_manager.currentScene.buttons["next"].click()
                 await asyncio.sleep(.5)
             # 獎勵遊戲 - highlow
             elif self.scene_manager.currentScene.scene_id == "result_bonus-highlow":
-
-                print("獎勵遊戲 - highlow")
+                bonus_info = check_bonus_info(self.scene_manager)
+                target_num = bonus_info.get("target_num")
+                if (target_num >= 7):
+                    self.scene_manager.currentScene.buttons["low"].click()
+                else:
+                    self.scene_manager.currentScene.buttons["high"].click()
                 await asyncio.sleep(.5)
             # 獎勵遊戲 - 失敗
             elif self.scene_manager.currentScene.scene_id == "result_bonus-failed":
-                print("獎勵遊戲 - 失敗")
-                await asyncio.sleep(.5)
+                self.game.close_app()
+                self.stop()
             elif self.scene_manager.currentScene.scene_id == "result_bonus-failed_use-item-dialog":
-                print("獎勵遊戲 - 失敗 - 使用道具")
                 await asyncio.sleep(.5)
             else:
                 self.stop()

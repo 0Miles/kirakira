@@ -22,6 +22,15 @@ class SceneManager:
     def match_template(self, screenshot, template_path, threshold=0.8):
         return self.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, template_path), threshold)
 
+    def find_first_matching_template_key(self, screenshot, template_dict, threshold=0.8):
+        result = None
+        for key in template_dict.keys():
+            matches = self.match_template(screenshot, template_dict[key], threshold)
+            if matches:
+                result = key
+                break
+        return result
+
     def load_scenes(self) -> Dict[str, 'Scene']:
         scenes = {}
         if os.path.exists(SCENES_DIR):
