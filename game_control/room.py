@@ -51,81 +51,85 @@ def check_room_list(scene_manager: SceneManager):
 
 
 def check_room_info(scene_manager: SceneManager):
-    screenshot = scene_manager.game.capture_screen()
-    # 取得 title 的位置
-    matches = scene_manager.match_template(screenshot, "scenes/matching/title.png")
-    if not matches:
+    try:
+        screenshot = scene_manager.game.capture_screen()
+        # 取得 title 的位置
+        matches = scene_manager.match_template(screenshot, "scenes/matching/title.png")
+        if not matches:
+            return None
+        title_x, title_y, title_w, title_h = matches[0]
+
+        region = (480, title_y + 35, 440, 350)
+        ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, region)
+
+        # 初始化欄位
+        player_1 = {
+            "level": None, "player_name": None, "battle_point": None, 
+            "win_draw_record": None, "win_rate": None, "enter_button": None
+        }
+        
+        player_2 = {
+            "level": None, "player_name": None, "battle_point": None, 
+            "win_draw_record": None, "win_rate": None
+        }
+
+        # 記錄 BattlePoint 位置來區分第一名與第二名玩家
+        battle_points = []
+
+        for item in ocr_result:
+            text = item["text"]
+            x1, y1, x2, y2 = item["position"]
+
+            # 記錄 BattlePoint 出現的位置
+            if "BattlePoint" in text:
+                battle_points.append(y1)
+                continue  # 跳過不儲存標籤
+
+        # 沒有任何 BattlePoint，代表沒有玩家資訊
+        if (len(battle_points) == 0):
+            return None
+
+        # 判斷是否有第二名玩家
+        has_second_player = len(battle_points) > 1
+
+        for item in ocr_result:
+            text = item["text"]
+            x1, y1, x2, y2 = item["position"]
+
+            # 第一名玩家 (y < 200)
+            if y1 < 200:
+                if "Level" in text:
+                    player_1["level"] = text
+                elif 590 < x1 < 690 and title_y + 80 < y1 < title_y + 100:
+                    player_1["player_name"] = text
+                elif 590 < x1 < 690 and title_y + 106 < y1 < title_y + 126:
+                    player_1["battle_point"] = text
+                elif 590 < x1 < 690 and title_y + 135 < y1 < title_y + 160:
+                    player_1["win_draw_record"] = text
+                elif 590 < x1 < 690 and title_y + 165 < y1 < title_y + 190:
+                    player_1["win_rate"] = text
+
+            # 第二名玩家 (y > 200)
+            elif has_second_player and y1 > 200:
+                if "Level" in text:
+                    player_2["level"] = text
+                elif 715 < x1 < 810 and title_y + 225 < y1 < title_y + 250:
+                    player_2["player_name"] = text
+                elif 715 < x1 < 810 and title_y + 260 < y1 < title_y + 280:
+                    player_2["battle_point"] = text
+                elif 715 < x1 < 810 and title_y + 285 < y1 < title_y + 310:
+                    player_2["win_draw_record"] = text
+                elif 715 < x1 < 810 and title_y + 315 < y1 < title_y + 345:
+                    player_2["win_rate"] = text
+
+        return {
+            "player_1": player_1,
+            "player_2": player_2 if has_second_player else None,
+            "has_second_player": has_second_player
+        }
+    except Exception as e:
+        print(e)
         return None
-    title_x, title_y, title_w, title_h = matches[0]
-
-    region = (480, title_y + 35, 440, 350)
-    ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, region)
-
-    # 初始化欄位
-    player_1 = {
-        "level": None, "player_name": None, "battle_point": None, 
-        "win_draw_record": None, "win_rate": None, "enter_button": None
-    }
-    
-    player_2 = {
-        "level": None, "player_name": None, "battle_point": None, 
-        "win_draw_record": None, "win_rate": None
-    }
-
-    # 記錄 BattlePoint 位置來區分第一名與第二名玩家
-    battle_points = []
-
-    for item in ocr_result:
-        text = item["text"]
-        x1, y1, x2, y2 = item["position"]
-
-        # 記錄 BattlePoint 出現的位置
-        if "BattlePoint" in text:
-            battle_points.append(y1)
-            continue  # 跳過不儲存標籤
-
-    # 沒有任何 BattlePoint，代表沒有玩家資訊
-    if (len(battle_points) == 0):
-        return None
-
-    # 判斷是否有第二名玩家
-    has_second_player = len(battle_points) > 1
-
-    for item in ocr_result:
-        text = item["text"]
-        x1, y1, x2, y2 = item["position"]
-
-        # 第一名玩家 (y < 200)
-        if y1 < 200:
-            if "Level" in text:
-                player_1["level"] = text
-            elif 590 < x1 < 690 and title_y + 80 < y1 < title_y + 100:
-                player_1["player_name"] = text
-            elif 590 < x1 < 690 and title_y + 106 < y1 < title_y + 126:
-                player_1["battle_point"] = text
-            elif 590 < x1 < 690 and title_y + 135 < y1 < title_y + 160:
-                player_1["win_draw_record"] = text
-            elif 590 < x1 < 690 and title_y + 165 < y1 < title_y + 190:
-                player_1["win_rate"] = text
-
-        # 第二名玩家 (y > 200)
-        elif has_second_player and y1 > 200:
-            if "Level" in text:
-                player_2["level"] = text
-            elif 715 < x1 < 810 and title_y + 225 < y1 < title_y + 250:
-                player_2["player_name"] = text
-            elif 715 < x1 < 810 and title_y + 260 < y1 < title_y + 280:
-                player_2["battle_point"] = text
-            elif 715 < x1 < 810 and title_y + 285 < y1 < title_y + 310:
-                player_2["win_draw_record"] = text
-            elif 715 < x1 < 810 and title_y + 315 < y1 < title_y + 345:
-                player_2["win_rate"] = text
-
-    return {
-        "player_1": player_1,
-        "player_2": player_2 if has_second_player else None,
-        "has_second_player": has_second_player
-    }
 
 
 def join_room(scene_manager: SceneManager, room_position, player_name):
@@ -150,7 +154,7 @@ def join_room(scene_manager: SceneManager, room_position, player_name):
 
     print(room_info)
     print(player_name)
-    if room_info["player_1"]["player_name"] == player_name:
+    if room_info["player_1"]["player_name"] in player_name:
         scene_manager.currentScene.buttons["enter"].click()
         return True
     else:

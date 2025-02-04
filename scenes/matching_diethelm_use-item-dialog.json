@@ -24,7 +24,7 @@
         },
         {
             "id": "green-tea",
-            "template": ["scenes/use-item-dialog/green-tea.png"]
+            "template": ["scenes/use-item-dialog/button-green-tea.png"]
         }
     ]
 }

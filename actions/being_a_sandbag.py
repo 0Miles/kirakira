@@ -28,7 +28,7 @@ class BeingASandbag(ActionBase):
             elif self.scene_manager.currentScene.scene_id == "matching_diethelm":
                 room_list = check_room_list(self.scene_manager)
                 if room_list:
-                    target_room = next((room for room in room_list if room['owner'] == config.AUTO_SANDBAG_TARGET_USERNAME), None)
+                    target_room = next((room for room in room_list if config.AUTO_SANDBAG_TARGET_USERNAME in room['owner']), None)
                     if target_room:
                         join_room(self.scene_manager, target_room['position'], target_room['owner'])
                         await asyncio.sleep(.2)
