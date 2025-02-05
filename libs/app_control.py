@@ -209,62 +209,62 @@ class AppControl:
             print(f"[ERROR] 無法點擊 {self.window_title}: {e}")
             return False
 
-    def input_text(self, text, x, y):
-        """ 在非活動視窗的指定位置輸入文字（不需要激活視窗）
-        Args:
-            text (str): 要輸入的文字
-            x (int): 相對於視窗的 X 座標
-            y (int): 相對於視窗的 Y 座標
-        Returns:
-            bool: 是否成功輸入文字
-        """
-        try:
-            # 獲取目標視窗的句柄
-            hwnd = win32gui.FindWindow(None, self.window_title)
-            if not hwnd:
-                print(f"[ERROR] 找不到視窗: {self.window_title}")
-                return False
+    def input_text(self, text, x, y, max_retries=3):
+        """ 在非活動視窗的指定位置輸入文字（不需要激活視窗） """
+        for attempt in range(max_retries):
+            try:
+                hwnd = win32gui.FindWindow(None, self.window_title)
+                if not hwnd:
+                    print(f"[ERROR] 找不到視窗: {self.window_title}")
+                    return False
 
-            # 保存原有的剪貼簿內容
-            original_clipboard = pyperclip.paste()
-            
-            # 計算滑鼠座標參數
-            l_param = win32api.MAKELONG(x, y)
-            
-            # 點擊以設置焦點
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, l_param)
-            time.sleep(0.1)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_LBUTTONUP, 0, l_param)
-            time.sleep(0.1)
-            
-            # 全選現有文字 (Ctrl+A)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYDOWN, win32con.VK_CONTROL, 0)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYDOWN, ord('A'), 0)
-            time.sleep(0.1)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYUP, ord('A'), 0)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYUP, win32con.VK_CONTROL, 0)
-            time.sleep(0.1)
-            
-            # 複製新文字到剪貼簿並貼上
-            pyperclip.copy(text)
-            
-            # 貼上文字 (Ctrl+V)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYDOWN, win32con.VK_CONTROL, 0)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYDOWN, ord('V'), 0)
-            time.sleep(0.1)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYUP, ord('V'), 0)
-            windll.user32.SendNotifyMessageW(hwnd, win32con.WM_KEYUP, win32con.VK_CONTROL, 0)
-            
-            # 恢復原有的剪貼簿內容
-            time.sleep(0.1)
-            pyperclip.copy(original_clipboard)
-            
-            print(f"[INFO] 已在 {self.window_title} ({x}, {y}) 輸入文字: {text}")
-            return True
-            
-        except Exception as e:
-            print(f"[ERROR] 無法在 {self.window_title} 輸入文字: {e}")
-            return False
+                # 先準備新文字到剪貼簿
+                original_clipboard = pyperclip.paste()
+                pyperclip.copy(text)
+                time.sleep(0.5)  # 等待剪貼簿更新
+                
+                # 計算滑鼠座標參數
+                l_param = win32api.MAKELONG(x, y)
+                
+                # 點擊以設置焦點
+                windll.user32.SendMessageW(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, l_param)
+                time.sleep(0.2)
+                windll.user32.SendMessageW(hwnd, win32con.WM_LBUTTONUP, 0, l_param)
+                time.sleep(0.5)
+                
+                # 全選現有文字 (Ctrl+A)
+                windll.user32.SendMessageW(hwnd, win32con.WM_KEYDOWN, win32con.VK_CONTROL, 0)
+                windll.user32.SendMessageW(hwnd, win32con.WM_KEYDOWN, ord('A'), 0)
+                time.sleep(0.1)
+                windll.user32.SendMessageW(hwnd, win32con.WM_KEYUP, ord('A'), 0)
+                windll.user32.SendMessageW(hwnd, win32con.WM_KEYUP, win32con.VK_CONTROL, 0)
+                time.sleep(0.5)
+                
+                # 清除選中的文字 (Delete)
+                windll.user32.SendMessageW(hwnd, win32con.WM_KEYDOWN, win32con.VK_DELETE, 0)
+                time.sleep(0.1)
+                windll.user32.SendMessageW(hwnd, win32con.WM_KEYUP, win32con.VK_DELETE, 0)
+                time.sleep(0.5)
+                
+                # 直接插入新文字
+                for char in text:
+                    windll.user32.SendMessageW(hwnd, win32con.WM_CHAR, ord(char), 0)
+                    time.sleep(0.05)
+
+                # 恢復原有的剪貼簿內容
+                time.sleep(0.5)
+                pyperclip.copy(original_clipboard)
+                
+                print(f"[INFO] 已在 {self.window_title} ({x}, {y}) 輸入文字: {text}")
+                return True
+                
+            except Exception as e:
+                print(f"[WARNING] 第 {attempt + 1} 次嘗試輸入文字失敗: {e}")
+                time.sleep(1)
+                continue
+                
+        print(f"[ERROR] 在 {max_retries} 次嘗試後仍無法在 {self.window_title} 輸入文字")
+        return False
 
     def get_window_metrics(self):
         """ 獲取視窗的標題列高度和邊框大小 """
