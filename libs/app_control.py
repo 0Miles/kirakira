@@ -66,6 +66,8 @@ class AppControl:
             print(f"{self.app_names} 之一已在運行中。")
     
     def close_app(self):
+        if not self.is_app_running():
+            print(f"{self.app_names} 未在運行。")
         found = False
         for process in psutil.process_iter(attrs=['pid', 'name']):
             for name in self.app_names:
