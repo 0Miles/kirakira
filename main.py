@@ -28,8 +28,6 @@ async def main():
         if not game.is_app_running():
             await puppeteer.start_action("BootGame")
         
-        game.focus_window()
-        
         if (config.SCRIPT_MODE == "being_a_sandbag"):
             await puppeteer.start_action("BeingASandbag")
         elif (config.SCRIPT_MODE == "find_sandbag"):

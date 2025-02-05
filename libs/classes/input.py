@@ -1,7 +1,5 @@
 import os
 import time
-import pyautogui
-import pyperclip
 from typing import List, Union, Tuple, TYPE_CHECKING
 from libs.constants import TEMPLATES_DIR
 
@@ -83,12 +81,12 @@ class Input:
         position = self.find_input()
         if position:
             x, y, w, h = position
-            window_geometry = self.scene_manager.game.get_window_geometry()
-            target_x = window_geometry['x'] + x + w // 2
-            target_y = window_geometry['y'] + y + h // 2
-            pyautogui.click(target_x, target_y)
-            print(f"[INFO] 點擊Input {self.input_id}")
-            return True
+            # 使用 AppControl 的 click 方法
+            click_x = x + w // 2
+            click_y = y + h // 2
+            if self.scene_manager.game.click(click_x, click_y):
+                print(f"[INFO] 點擊Input {self.input_id}")
+                return True
         print(f"[ERROR] 無法點擊Input {self.input_id}")
         return False
 
@@ -107,12 +105,12 @@ class TextInput(Input):
     
     def change_text(self, text: str) -> bool:
         """ 更改Input內的文字 """
-        if self.click():
-            pyperclip.copy(text)
-            pyautogui.hotkey('ctrl', 'a')
-            pyautogui.hotkey('ctrl', 'v')
-            print(f"[INFO] 修改Input {self.input_id} 內容為: {text}")
-            return True
+        position = self.find_input()
+        if position:
+            x, y, w, h = position
+            click_x = x + w // 2
+            click_y = y + h // 2
+            return self.scene_manager.game.input_text(text, click_x, click_y)
         print(f"[ERROR] 無法更改Input {self.input_id} 內容")
         return False
 
@@ -126,12 +124,11 @@ class Select(Input):
             option_matches = self.scene_manager.match_template(screenshot, option_template)
             if option_matches:
                 x, y, w, h = option_matches[0]
-                window_geometry = self.scene_manager.game.get_window_geometry()
-                target_x = window_geometry['x'] + x + w // 2
-                target_y = window_geometry['y'] + y + h // 2
-                pyautogui.click(target_x, target_y)
-                print(f"[INFO] 選擇選項 {option_template}")
-                return True
+                click_x = x + w // 2
+                click_y = y + h // 2
+                if self.scene_manager.game.click(click_x, click_y):
+                    print(f"[INFO] 選擇選項 {option_template}")
+                    return True
         print(f"[ERROR] 無法選擇選項 {option_template}")
         return False
 

@@ -1,8 +1,5 @@
-import os
 import re
 import time
-
-import pyautogui
 
 from libs.scene_manager import SceneManager
 from libs.constants import TEMPLATES_DIR
@@ -133,14 +130,12 @@ def check_room_info(scene_manager: SceneManager):
 
 
 def join_room(scene_manager: SceneManager, room_position, player_name):
-    window_geometry = scene_manager.game.get_window_geometry()
-    x, y, w, h = room_position  # 取第一個匹配結果
-    target_x = window_geometry['x'] + x + w // 2
-    target_y = window_geometry['y'] + y
+    x, y, w, h = room_position
+    click_x = x + w // 2
+    click_y = y
     
-    # 將游標移到目標坐標並點擊
-    pyautogui.moveTo(target_x, target_y)
-    pyautogui.click()
+    if not scene_manager.game.click(click_x, click_y):
+        return False
 
     room_info = None
     time_count = 0
@@ -151,7 +146,6 @@ def join_room(scene_manager: SceneManager, room_position, player_name):
         if time_count > 10:
             return False
 
-
     print(room_info)
     print(player_name)
     if room_info["player_1"]["player_name"] in player_name:
@@ -159,4 +153,4 @@ def join_room(scene_manager: SceneManager, room_position, player_name):
         return True
     else:
         return False
-                    
+
