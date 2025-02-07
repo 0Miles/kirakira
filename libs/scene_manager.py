@@ -19,7 +19,6 @@ class SceneManager:
         self.scenes: Dict[str, 'Scene'] = self.load_scenes()
         self.game = game
         self.extra_info = {}
-        self._next_scene_futures: List[asyncio.Future] = []
 
     def match_template(self, screenshot, template_path, threshold=0.8):
         return self.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, template_path), threshold)
@@ -76,12 +75,6 @@ class SceneManager:
     def scene_has_changed(self):
         return self.currentScene and self.prevAvailableScene and self.currentScene.scene_id != self.prevAvailableScene.scene_id
 
-    async def onNextScene(self) -> None:
-        """等待下一次場景切換"""
-        future = asyncio.Future()
-        self._next_scene_futures.append(future)
-        await future
-
     async def refresh(self):
         window_geometry = self.game.get_window_geometry()
         if not window_geometry:
@@ -99,9 +92,3 @@ class SceneManager:
                 print(f"[SCENE] 場景切換: {self.currentScene.scene_id}")
                 if hasattr(self.currentScene, "execute_actions"):
                     self.currentScene.execute_actions()
-                
-                # 完成所有等待場景切換的 Future
-                for future in self._next_scene_futures:
-                    if not future.done():
-                        future.set_result(None)
-                self._next_scene_futures.clear()

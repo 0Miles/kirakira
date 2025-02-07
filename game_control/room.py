@@ -10,7 +10,7 @@ def check_room_list(scene_manager: SceneManager):
     # 取得 title 的位置
     matches = scene_manager.match_template(screenshot, "scenes/matching/title.png")
     if not matches:
-        return None
+        return []
     title_x, title_y, title_w, title_h = matches[0]
 
     region = (0, title_y + 65, 450, 420)
