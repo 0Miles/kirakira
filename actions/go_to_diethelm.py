@@ -2,9 +2,10 @@ import asyncio
 from libs.classes.action_base import ActionBase, once, loop
 
 class GoToDiethelm(ActionBase):
-    @once("title-screen")
+    @loop("title-screen")
     async def handle_title_screen(self):
-        await self.scene_manager.currentScene.buttons["start"].wait_click()
+        self.scene_manager.currentScene.buttons["start"].click()
+        await asyncio.sleep(1)
 
     @once("now-loading", None, 300)
     async def handle_now_loading(self):
