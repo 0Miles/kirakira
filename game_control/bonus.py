@@ -17,6 +17,7 @@ def check_bonus_info(scene_manager: SceneManager):
 
     # 取得當前目標數字
     target_num_template = {
+        "12": "scenes/result/bonus-highlow/12.png",
         "11": "scenes/result/bonus-highlow/11.png",
         "10": "scenes/result/bonus-highlow/10.png",
         "9": "scenes/result/bonus-highlow/9.png",
