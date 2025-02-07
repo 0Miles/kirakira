@@ -48,7 +48,6 @@ class FindSandbag(ActionBase):
     async def handle_matching_diethelm_wating_dialog(self):
         await asyncio.sleep(3)
         room_list = check_room_list(self.scene_manager)
-        print(room_list)
         if not any(room["owner"] == config.FIND_SANDBAG_USERNAME for room in room_list):
             self.scene_manager.currentScene.buttons["cancel"].click()
         await asyncio.sleep(.5)
@@ -77,5 +76,5 @@ class FindSandbag(ActionBase):
     @once("error")
     async def handle_error(self):
         print("[INFO] 出現錯誤畫面，關閉遊戲")
-        self.game.close_app()
         self.stop()
+        self.game.close_app()

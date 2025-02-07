@@ -31,5 +31,5 @@ class GoToDiethelm(ActionBase):
     @once("error")
     async def handle_error(self):
         print("[INFO] 出現錯誤畫面，關閉遊戲")
-        self.game.close_app()
         self.stop()
+        self.game.close_app()

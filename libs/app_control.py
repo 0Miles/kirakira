@@ -223,7 +223,7 @@ class AppControl:
                 # 先準備新文字到剪貼簿
                 original_clipboard = pyperclip.paste()
                 pyperclip.copy(text)
-                time.sleep(0.5)  # 等待剪貼簿更新
+                time.sleep(0.1)  # 等待剪貼簿更新
                 
                 # 計算滑鼠座標參數
                 l_param = win32api.MAKELONG(x, y)
@@ -232,7 +232,7 @@ class AppControl:
                 windll.user32.SendMessageW(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, l_param)
                 time.sleep(0.2)
                 windll.user32.SendMessageW(hwnd, win32con.WM_LBUTTONUP, 0, l_param)
-                time.sleep(0.5)
+                time.sleep(0.1)
                 
                 # 全選現有文字 (Ctrl+A)
                 windll.user32.SendMessageW(hwnd, win32con.WM_KEYDOWN, win32con.VK_CONTROL, 0)
@@ -240,13 +240,13 @@ class AppControl:
                 time.sleep(0.1)
                 windll.user32.SendMessageW(hwnd, win32con.WM_KEYUP, ord('A'), 0)
                 windll.user32.SendMessageW(hwnd, win32con.WM_KEYUP, win32con.VK_CONTROL, 0)
-                time.sleep(0.5)
+                time.sleep(0.1)
                 
                 # 清除選中的文字 (Delete)
                 windll.user32.SendMessageW(hwnd, win32con.WM_KEYDOWN, win32con.VK_DELETE, 0)
                 time.sleep(0.1)
                 windll.user32.SendMessageW(hwnd, win32con.WM_KEYUP, win32con.VK_DELETE, 0)
-                time.sleep(0.5)
+                time.sleep(0.1)
                 
                 # 直接插入新文字
                 for char in text:
@@ -254,7 +254,7 @@ class AppControl:
                     time.sleep(0.05)
 
                 # 恢復原有的剪貼簿內容
-                time.sleep(0.5)
+                time.sleep(0.1)
                 pyperclip.copy(original_clipboard)
                 
                 print(f"[INFO] 已在 {self.window_title} ({x}, {y}) 輸入文字: {text}")

@@ -20,6 +20,11 @@ class BeingASandbag(ActionBase):
                     target_room['owner']
                 )
                 await asyncio.sleep(.5)
+    
+    @once("matching_diethelm_room-is-full-dialog")
+    async def handle_matching_diethelm_room_is_full_dialog(self):
+        self.scene_manager.currentScene.buttons["ok"].click()
+        await asyncio.sleep(1)
 
     @once("now-loading", None, 300)
     async def handle_now_loading(self):
@@ -39,9 +44,9 @@ class BeingASandbag(ActionBase):
     @once("fighting_surrender-dialog")
     async def handle_fighting_surrender_dialog(self):
         self.scene_manager.currentScene.buttons["ok"].click()
+        self.stop()
         self.game.close_app()
         await asyncio.sleep(1)
-        self.stop()
 
     @once("error")
     async def handle_error(self):

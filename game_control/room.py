@@ -17,34 +17,66 @@ def check_room_list(scene_manager: SceneManager):
 
     ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, region)
 
-    room = []
+    room_list = []
     for index, item in enumerate(ocr_result):
-        if item['text'].startswith('Lv.') and item['position'][0] < 50:
-            match = re.match(r'^Lv\.\d+', item['text'])
-            owner_lv = match.group(0) if match else None
-            owner = item['text'][len(owner_lv):]
-            room_name = ""
-            if (index > 0 and abs(item.get("position")[1] - ocr_result[index - 1].get("position")[1]) < 30):
-                room_name = ocr_result[index - 1]['text']
-
-            guest_lv = None
-            guest = None
-            if (index + 2 < len(ocr_result) and ocr_result[index + 2]['text'].startswith('Lv.') and abs(item.get("position")[1] - ocr_result[index + 2].get("position")[1]) < 10):
-                match = re.match(r'^Lv\.\d+', ocr_result[index + 2]['text'])
-                guest_lv = match.group(0) if match else None
-                guest = ocr_result[index + 2]['text'][len(guest_lv):] if match else None
-            room.append({
-                'owner': owner,
-                'owner_lv': owner_lv,
-                'room_name': room_name,
-                'guest': guest,
-                'guest_lv': guest_lv,
-                'is_full': guest is not None,
-                'position': item.get("position")
-            })
-        else:
+        # 確保必要的欄位存在
+        if not item or not isinstance(item, dict):
             continue
-    return room
+        
+        text = item.get('text', '')
+        position = item.get('position')
+        
+        # 跳過無效的資料
+        if not text or not position or len(position) < 2:
+            continue
+
+        # 檢查是否為玩家資訊行
+        if text.startswith('Lv.') and position[0] < 50:
+            try:
+                match = re.match(r'^Lv\.\d+', text)
+                owner_lv = match.group(0) if match else None
+                owner = text[len(owner_lv):] if owner_lv else text
+
+                # 檢查上一行是否為房間名稱
+                s_name = ""
+                if (index > 0 and 
+                    isinstance(ocr_result[index - 1], dict) and 
+                    'position' in ocr_result[index - 1] and 
+                    'text' in ocr_result[index - 1] and
+                    abs(position[1] - ocr_result[index - 1]['position'][1]) < 30):
+                    room_name = ocr_result[index - 1]['text']
+
+                # 檢查是否有訪客資訊
+                guest_lv = None
+                guest = None
+                if (index + 2 < len(ocr_result) and 
+                    isinstance(ocr_result[index + 2], dict) and
+                    'text' in ocr_result[index + 2] and 
+                    ocr_result[index + 2]['text'].startswith('Lv.') and
+                    'position' in ocr_result[index + 2] and
+                    abs(position[1] - ocr_result[index + 2]['position'][1]) < 10):
+                    guest_text = ocr_result[index + 2]['text']
+                    guest_match = re.match(r'^Lv\.\d+', guest_text)
+                    guest_lv = guest_match.group(0) if guest_match else None
+                    guest = guest_text[len(guest_lv):] if guest_lv else guest_text
+
+                room_list.append({
+                    'owner': owner.strip() if owner else '',
+                    'owner_lv': owner_lv,
+                    'room_name': room_name.strip() if room_name else '',
+                    'guest': guest.strip() if guest else None,
+                    'guest_lv': guest_lv,
+                    'is_full': guest is not None,
+                    'position': position
+                })
+            except Exception as e:
+                print(f"[WARNING] 處理房間資訊時發生錯誤: {e}")
+                continue
+    print(f"[INFO] 房間列表:")
+    for room in room_list:
+        print(f"  - {room['owner']}: {room['room_name']}, guest: {room['guest']} isFull: {room['is_full']}")
+
+    return room_list
 
 
 def check_room_info(scene_manager: SceneManager):
@@ -141,9 +173,11 @@ def join_room(scene_manager: SceneManager, room_position, player_name):
     time_count = 0
     while room_info == None:
         room_info = check_room_info(scene_manager)
-        time.sleep(.5)
+        if room_info:
+            break
+        time.sleep(.3)
         time_count += 1
-        if time_count > 10:
+        if time_count > 20:
             return False
 
     print(room_info)
