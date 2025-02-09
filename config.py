@@ -7,6 +7,8 @@ GAME_EXECUTABLE_PATH = r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\UNLI
 STEAM_GAME_ID = "3247080"  # 遊戲的 Steam 應用 ID
 TEMPLATE_ORIGIN_CLIENT_WIDTH = 950  # 製作 Template 時使用的遊戲原始畫面寬度
 TEMPLATE_ORIGIN_CLIENT_HEIGHT = 888  # 製作 Template 時使用的遊戲原始畫面高度
+TEMPLATE_ORIGIN_TITLE_BAR_HEIGHT = 40
+TEMPLATE_ORIGIN_LEFT_BORDER_WIDTH = 1
 
 
 # Steam 設定

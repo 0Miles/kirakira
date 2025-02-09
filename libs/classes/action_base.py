@@ -156,7 +156,7 @@ class ActionBase(ABC):
                 await self.process()
                 await asyncio.sleep(0.1)
         except Exception as e:
-            self.logger.error(f"發生錯誤, Action:{self.__class__.__name__}, Scene:{self.scene_manager.currentScene.scene_id}: {e}")
+            self.logger.error(f"發生錯誤, Action:{self.__class__.__name__}, Scene:{self.scene_manager.currentScene.scene_id if self.scene_manager.currentScene else None}: {e}")
             self._running = False
             raise
         finally:

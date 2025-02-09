@@ -5,10 +5,11 @@ if TYPE_CHECKING:
     from libs.scene_manager import SceneManager
 
 class Button:
-    def __init__(self, button_id, template, scene_manager: 'SceneManager'):
+    def __init__(self, button_id, template, scene_manager: 'SceneManager', region=None):
         self.button_id = button_id
         self.template = template if isinstance(template, list) else [template]
         self.scene_manager = scene_manager
+        self.region = region  # [x, y, width, height]
         self.prev_success_position = None
 
     def click(self):
@@ -16,7 +17,18 @@ class Button:
             screenshot = self.scene_manager.game.capture_screen()
             
             for template in self.template:
-                matches = self.scene_manager.match_template(screenshot, template)
+                # 如果有指定區域，則進行區域縮放
+                search_region = None
+                if self.region:
+                    print(f"[INFO] 使用指定區域進行匹配: {self.region}")
+                    search_region = self.scene_manager.get_scaled_region(*self.region)
+                
+                matches = self.scene_manager.match_template(
+                    screenshot, 
+                    template,
+                    region=search_region
+                )
+                
                 if matches:
                     # 計算相對於視窗的點擊位置
                     x, y, w, h = matches[0]  # 取第一個匹配結果
@@ -48,8 +60,8 @@ class Button:
                 print(f"[INFO] 點擊按鈕 {self.button_id} 成功")
                 return True
             await asyncio.sleep(interval)
-            await self.scene_manager.refresh()
-            if not self.scene_manager.currentScene or self.scene_manager.currentScene.scene_id != start_scene_id:
+            check_scene = await self.scene_manager.check_current_screen()
+            if not check_scene or check_scene.scene_id != start_scene_id:
                 print(f"[INFO] 已轉場，停止等待按鈕 {self.button_id}")
                 return True
         raise Exception(f"無法點擊按鈕 {self.button_id} (重試 {max_retry} 次)")

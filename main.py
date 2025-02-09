@@ -8,7 +8,7 @@ import config
 async def main():
     steam = SteamControl(config.STEAM_GAME_ID)
     game = AppControl(config.GAME_NAME, config.GAME_WINDOW_TITLE)
-    scene_manager = SceneManager(game, (config.TEMPLATE_ORIGIN_CLIENT_WIDTH, config.TEMPLATE_ORIGIN_CLIENT_HEIGHT))
+    scene_manager = SceneManager(game, (config.TEMPLATE_ORIGIN_CLIENT_WIDTH, config.TEMPLATE_ORIGIN_CLIENT_HEIGHT), config.TEMPLATE_ORIGIN_TITLE_BAR_HEIGHT, config.TEMPLATE_ORIGIN_LEFT_BORDER_WIDTH)
     # 創建並初始化 Puppeteer
     puppeteer = Puppeteer(
         steam_control=steam,

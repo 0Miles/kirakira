@@ -11,7 +11,8 @@
             "template": [
                 "scenes/matching/button-diethelm.png",
                 "scenes/matching/button-diethelm-hover.png"
-            ]
+            ],
+            "region": [230, 62, 215, 76]
         }
     ]
 }

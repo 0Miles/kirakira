@@ -7,13 +7,10 @@ from libs.constants import TEMPLATES_DIR
 
 def check_room_list(scene_manager: SceneManager):
     screenshot = scene_manager.game.capture_screen()
-    # 取得 title 的位置
-    matches = scene_manager.match_template(screenshot, "scenes/matching/title.png")
-    if not matches:
-        return []
-    title_x, title_y, title_w, title_h = matches[0]
 
-    region = (0, title_y + 65, 450, 420)
+    # 使用 get_safe_client_region 計算房間列表區域
+    x, y, w, h = scene_manager.get_safe_client_region(0, 65, 450, 420)
+    region = (x, y, w, h)
 
     ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, region)
 
@@ -38,7 +35,7 @@ def check_room_list(scene_manager: SceneManager):
                 owner = text[len(owner_lv):] if owner_lv else text
 
                 # 檢查上一行是否為房間名稱
-                s_name = ""
+                room_name = ""
                 if (index > 0 and 
                     isinstance(ocr_result[index - 1], dict) and 
                     'position' in ocr_result[index - 1] and 
@@ -82,13 +79,10 @@ def check_room_list(scene_manager: SceneManager):
 def check_room_info(scene_manager: SceneManager):
     try:
         screenshot = scene_manager.game.capture_screen()
-        # 取得 title 的位置
-        matches = scene_manager.match_template(screenshot, "scenes/matching/title.png")
-        if not matches:
-            return None
-        title_x, title_y, title_w, title_h = matches[0]
 
-        region = (480, title_y + 35, 440, 350)
+        # 使用 get_safe_client_region 計算玩家資訊區域
+        x, y, w, h = scene_manager.get_safe_client_region(480, 35, 440, 350)
+        region = (x, y, w, h)
         ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, region)
 
         # 初始化欄位
@@ -100,6 +94,18 @@ def check_room_info(scene_manager: SceneManager):
         player_2 = {
             "level": None, "player_name": None, "battle_point": None, 
             "win_draw_record": None, "win_rate": None
+        }
+
+        # 獲取座標範圍的縮放版本
+        scaled_ranges = {
+            'p1_name': scene_manager.get_safe_client_region(590, 80, 100, 20),
+            'p1_bp': scene_manager.get_safe_client_region(590, 106, 100, 20),
+            'p1_record': scene_manager.get_safe_client_region(590, 135, 100, 25),
+            'p1_rate': scene_manager.get_safe_client_region(590, 165, 100, 25),
+            'p2_name': scene_manager.get_safe_client_region(715, 225, 95, 25),
+            'p2_bp': scene_manager.get_safe_client_region(715, 260, 95, 20),
+            'p2_record': scene_manager.get_safe_client_region(715, 285, 95, 25),
+            'p2_rate': scene_manager.get_safe_client_region(715, 315, 95, 30),
         }
 
         # 記錄 BattlePoint 位置來區分第一名與第二名玩家
@@ -125,31 +131,39 @@ def check_room_info(scene_manager: SceneManager):
             text = item["text"]
             x1, y1, x2, y2 = item["position"]
 
-            # 第一名玩家 (y < 200)
-            if y1 < 200:
+            # 第一名玩家資訊
+            if y1 < scaled_ranges['p1_rate'][1]:  # 使用p1區域的Y座標作為分界
                 if "Level" in text:
                     player_1["level"] = text
-                elif 590 < x1 < 690 and title_y + 80 < y1 < title_y + 100:
-                    player_1["player_name"] = text
-                elif 590 < x1 < 690 and title_y + 106 < y1 < title_y + 126:
-                    player_1["battle_point"] = text
-                elif 590 < x1 < 690 and title_y + 135 < y1 < title_y + 160:
-                    player_1["win_draw_record"] = text
-                elif 590 < x1 < 690 and title_y + 165 < y1 < title_y + 190:
-                    player_1["win_rate"] = text
+                elif x1 > scaled_ranges['p1_name'][0] and x1 < scaled_ranges['p1_name'][0] + scaled_ranges['p1_name'][2]:
+                    if y1 > scaled_ranges['p1_name'][1] and y1 < scaled_ranges['p1_name'][1] + scaled_ranges['p1_name'][3]:
+                        player_1["player_name"] = text
+                elif x1 > scaled_ranges['p1_bp'][0] and x1 < scaled_ranges['p1_bp'][0] + scaled_ranges['p1_bp'][2]:
+                    if y1 > scaled_ranges['p1_bp'][1] and y1 < scaled_ranges['p1_bp'][1] + scaled_ranges['p1_bp'][3]:
+                        player_1["battle_point"] = text
+                elif x1 > scaled_ranges['p1_record'][0] and x1 < scaled_ranges['p1_record'][0] + scaled_ranges['p1_record'][2]:
+                    if y1 > scaled_ranges['p1_record'][1] and y1 < scaled_ranges['p1_record'][1] + scaled_ranges['p1_record'][3]:
+                        player_1["win_draw_record"] = text
+                elif x1 > scaled_ranges['p1_rate'][0] and x1 < scaled_ranges['p1_rate'][0] + scaled_ranges['p1_rate'][2]:
+                    if y1 > scaled_ranges['p1_rate'][1] and y1 < scaled_ranges['p1_rate'][1] + scaled_ranges['p1_rate'][3]:
+                        player_1["win_rate"] = text
 
-            # 第二名玩家 (y > 200)
-            elif has_second_player and y1 > 200:
+            # 第二名玩家資訊
+            elif has_second_player and y1 > scaled_ranges['p2_name'][1]:
                 if "Level" in text:
                     player_2["level"] = text
-                elif 715 < x1 < 810 and title_y + 225 < y1 < title_y + 250:
-                    player_2["player_name"] = text
-                elif 715 < x1 < 810 and title_y + 260 < y1 < title_y + 280:
-                    player_2["battle_point"] = text
-                elif 715 < x1 < 810 and title_y + 285 < y1 < title_y + 310:
-                    player_2["win_draw_record"] = text
-                elif 715 < x1 < 810 and title_y + 315 < y1 < title_y + 345:
-                    player_2["win_rate"] = text
+                elif x1 > scaled_ranges['p2_name'][0] and x1 < scaled_ranges['p2_name'][0] + scaled_ranges['p2_name'][2]:
+                    if y1 > scaled_ranges['p2_name'][1] and y1 < scaled_ranges['p2_name'][1] + scaled_ranges['p2_name'][3]:
+                        player_2["player_name"] = text
+                elif x1 > scaled_ranges['p2_bp'][0] and x1 < scaled_ranges['p2_bp'][0] + scaled_ranges['p2_bp'][2]:
+                    if y1 > scaled_ranges['p2_bp'][1] and y1 < scaled_ranges['p2_bp'][1] + scaled_ranges['p2_bp'][3]:
+                        player_2["battle_point"] = text
+                elif x1 > scaled_ranges['p2_record'][0] and x1 < scaled_ranges['p2_record'][0] + scaled_ranges['p2_record'][2]:
+                    if y1 > scaled_ranges['p2_record'][1] and y1 < scaled_ranges['p2_record'][1] + scaled_ranges['p2_record'][3]:
+                        player_2["win_draw_record"] = text
+                elif x1 > scaled_ranges['p2_rate'][0] and x1 < scaled_ranges['p2_rate'][0] + scaled_ranges['p2_rate'][2]:
+                    if y1 > scaled_ranges['p2_rate'][1] and y1 < scaled_ranges['p2_rate'][1] + scaled_ranges['p2_rate'][3]:
+                        player_2["win_rate"] = text
 
         return {
             "player_1": player_1,
@@ -157,7 +171,7 @@ def check_room_info(scene_manager: SceneManager):
             "has_second_player": has_second_player
         }
     except Exception as e:
-        print(e)
+        print(f"[ERROR] check_room_info 發生錯誤: {e}")
         return None
 
 

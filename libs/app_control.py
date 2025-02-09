@@ -10,8 +10,14 @@ import win32con
 import win32api
 import win32ui
 import pyperclip
-from ctypes import windll, c_int, pointer, Structure, byref
+from ctypes import windll, c_int, pointer, Structure, byref, WINFUNCTYPE, c_int
 from ctypes.wintypes import RECT, DWORD
+
+# 新增系統指標常數
+SM_CYCAPTION = 4       # 標題列高度
+SM_CXFRAME = 32       # 視窗框架寬度
+SM_CYFRAME = 33       # 視窗框架高度
+SM_CXPADDEDBORDER = 92  # Windows Vista/7 之後額外的邊框寬度
 
 class NONCLIENTMETRICS(Structure):
     _fields_ = [
@@ -118,6 +124,28 @@ class AppControl:
         except Exception:
             return 1.0  # 如果無法獲取 DPI，返回 1.0（無縮放）
         
+    def get_window_frame_sizes(self):
+        """ 使用 GetSystemMetrics 獲取視窗框架尺寸 """
+        try:
+            # 獲取系統的視窗度量值
+            caption_height = windll.user32.GetSystemMetrics(SM_CYCAPTION)
+            frame_x = windll.user32.GetSystemMetrics(SM_CXFRAME)
+            frame_y = windll.user32.GetSystemMetrics(SM_CYFRAME)
+            padded_border = windll.user32.GetSystemMetrics(SM_CXPADDEDBORDER)
+
+            # 計算實際的邊框尺寸（包含填充）
+            total_frame_x = frame_x + padded_border
+            total_frame_y = frame_y + padded_border
+
+            return {
+                'caption_height': caption_height,
+                'frame_width': total_frame_x,
+                'frame_height': total_frame_y
+            }
+        except Exception as e:
+            print(f"[ERROR] 無法獲取系統視窗框架尺寸: {e}")
+            return None
+
     def get_window_size_info(self, hwnd = None):
         if self.window_title:
             try:
@@ -127,23 +155,29 @@ class AppControl:
                     print(f"[ERROR] 找不到視窗: {self.window_title}")
                     return None
                 
+                # 獲取視窗和客戶區域矩形
                 window_left, window_top, window_right, window_bottom = win32gui.GetWindowRect(hwnd)
-                window_width = window_right - window_left
-                window_height = window_bottom - window_top
-
                 client_left, client_top, client_right, client_bottom = win32gui.GetClientRect(hwnd)
-                client_width = client_right - client_left
-                client_height = client_bottom - client_top
+                
+                # 獲取系統視窗框架尺寸
+                frame_sizes = self.get_window_frame_sizes()
+                if not frame_sizes:
+                    return None
 
                 dpi_scale = self.get_window_dpi_scaling(hwnd)
 
                 return {
-                    "window_rect": (window_left, window_top, window_width, window_height),
-                    "client_rect": (client_left, client_top, client_width, client_height),
-                    "dpi_scale": dpi_scale
+                    "window_rect": (window_left, window_top, window_right - window_left, window_bottom - window_top),
+                    "client_rect": (client_left, client_top, client_right, client_bottom),
+                    "dpi_scale": dpi_scale,
+                    "title_bar_height": frame_sizes['caption_height'],
+                    "frame_left": frame_sizes['frame_width'],
+                    "frame_right": frame_sizes['frame_width'],
+                    "frame_bottom": frame_sizes['frame_height']
                 }
+
             except Exception as e:
-                print(f"[ERROR] 無法獲取客戶區域位置: {e}")
+                print(f"[ERROR] 無法獲取視窗資訊: {e}")
                 return None
 
     def capture_screen(self):
@@ -177,13 +211,14 @@ class AppControl:
 
                 # 使用 PrintWindow 獲取視窗內容
                 result = windll.user32.PrintWindow(hwnd, save_dc.GetSafeHdc(), 2)  # 使用 PW_CLIENTONLY
-                if result != 1:
-                    print("[WARNING] PrintWindow 可能未完全成功")
-
-                # 獲取位圖信息並轉換為 numpy 陣列
-                bmpstr = save_bitmap.GetBitmapBits(True)
-                img = np.frombuffer(bmpstr, dtype='uint8')
-                img.shape = (height, width, 4)
+                if result == 1:
+                    # 只在成功時處理圖片
+                    bmpstr = save_bitmap.GetBitmapBits(True)
+                    img = np.frombuffer(bmpstr, dtype='uint8')
+                    img.shape = (height, width, 4)
+                else:
+                    print(f"[ERROR] PrintWindow 失敗，錯誤碼: {win32api.GetLastError()}")
+                    return None
 
                 # 清理資源
                 win32gui.DeleteObject(save_bitmap.GetHandle())
@@ -292,61 +327,3 @@ class AppControl:
                 
         print(f"[ERROR] 在 {max_retries} 次嘗試後仍無法在 {self.window_title} 輸入文字")
         return False
-
-    def get_window_metrics(self):
-        """ 獲取視窗的標題列高度和邊框大小 """
-        try:
-            hwnd = win32gui.FindWindow(None, self.window_title)
-            if not hwnd:
-                return None
-
-            # 獲取視窗矩形
-            window_rect = RECT()
-            client_rect = RECT()
-            win32gui.GetWindowRect(hwnd, byref(window_rect))
-            win32gui.GetClientRect(hwnd, byref(client_rect))
-
-            # 計算邊框和標題列大小
-            border_width = (window_rect.right - window_rect.left - client_rect.right) // 2
-            title_height = (window_rect.bottom - window_rect.top - client_rect.bottom) - border_width
-
-            return {
-                'title_height': title_height,
-                'border_width': border_width,
-                'total_frame_width': border_width * 2,
-                'total_frame_height': title_height + border_width
-            }
-        except Exception as e:
-            print(f"[ERROR] 無法獲取視窗度量資訊: {e}")
-            return None
-
-    def get_client_rect(self):
-        """ 獲取視窗的客戶區域位置（相對於螢幕） """
-        try:
-            hwnd = win32gui.FindWindow(None, self.window_title)
-            if not hwnd:
-                return None
-
-            # 獲取視窗位置
-            left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-            
-            # 獲取視窗度量資訊
-            metrics = self.get_window_metrics()
-            if not metrics:
-                return None
-
-            # 計算客戶區域
-            client_rect = {
-                'left': left + metrics['border_width'],
-                'top': top + metrics['title_height'],
-                'right': right - metrics['border_width'],
-                'bottom': bottom - metrics['border_width'],
-                'width': right - left - metrics['total_frame_width'],
-                'height': bottom - top - metrics['total_frame_height']
-            }
-
-            return client_rect
-
-        except Exception as e:
-            print(f"[ERROR] 無法獲取客戶區域位置: {e}")
-            return None

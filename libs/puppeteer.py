@@ -59,6 +59,7 @@ class Puppeteer:
         return self.actions.get(script_name)
 
     async def start_action(self, script_name: str) -> bool:
+        self.scene_manager.check_window_size_info()
         script = self.get_action(script_name)
         if script:
             print(f"[INFO] 開始執行動作: {script_name}")
