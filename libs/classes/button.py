@@ -41,20 +41,24 @@ class Button:
             return False
 
     async def wait_click(self, max_retry=10, interval=1):
+        start_scene_id = self.scene_manager.currentScene.scene_id if self.scene_manager.currentScene else None
         for i in range(max_retry):
             if self.click():
                 print(f"[INFO] 點擊按鈕 {self.button_id} 成功")
                 return True
             await asyncio.sleep(interval)
+            if self.scene_manager.currentScene.scene_id != start_scene_id:
+                print(f"[INFO] 已轉場，停止等待按鈕 {self.button_id}")
+                return True
         raise Exception(f"無法點擊按鈕 {self.button_id} (重試 {max_retry} 次)")
     
     
     async def try_wait_click(self, max_retry=10, interval=1):
-        for i in range(max_retry):
-            if self.click():
-                return True
-            await asyncio.sleep(interval)
-        return False
+        try:
+            return await self.wait_click(max_retry, interval)
+        except Exception as e:
+            print(f"[WARNING] {e}")
+            return False
     
     def click_prev_success_position(self):
         if self.prev_success_position:
