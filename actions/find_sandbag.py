@@ -1,11 +1,14 @@
+import time
 from game_control.room import check_room_list
 from libs.classes.action_base import ActionBase, once, loop
 import asyncio
 import config
 
 class FindSandbag(ActionBase):
-    
-    diethelm_create_fail_count = 0
+    fight_start_time = None  # 新增時間戳記屬性
+
+    async def on_start(self):
+        self.fight_start_time = None
 
     @once("matching_diethelm")
     async def handle_matching_diethelm(self):
@@ -64,8 +67,21 @@ class FindSandbag(ActionBase):
 
     @loop("fighting")
     async def handle_fighting(self):
-        self.scene_manager.currentScene.buttons["ok"].click()
-        await asyncio.sleep(1)
+        # 第一次進入戰鬥時記錄時間
+        if self.fight_start_time is None:
+            self.fight_start_time = time.time()
+            print(f"[INFO] 開始戰鬥時間: {time.strftime('%H:%M:%S', time.localtime(self.fight_start_time))}")
+        
+        # 檢查戰鬥時間
+        current_time = time.time()
+        elapsed_time = current_time - self.fight_start_time
+        if elapsed_time > 180:  # 超過3分鐘 (180秒)
+            print(f"[INFO] 戰鬥時間超過3分鐘，掛機中")
+            await asyncio.sleep(10)
+        else:
+            # 按OK
+            self.scene_manager.currentScene.buttons["ok"].click()
+            await asyncio.sleep(1)
 
     @once("fighting_surrender-dialog")
     async def handle_fighting_surrender_dialog(self):

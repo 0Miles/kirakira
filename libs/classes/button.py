@@ -30,15 +30,15 @@ class Button:
                 gray_matches = self.scene_manager.match_template(
                     screenshot, 
                     template,
-                    threshold=0.9,
+                    threshold=self.threshold,
                     region=search_region,
                     color=False
                 )
                 
-                if gray_matches:
+                if gray_matches and len(gray_matches) > 0:
                     # 如果需要彩色匹配，在每個灰階匹配位置嘗試彩色匹配
                     if self.color:
-                        print(f"[INFO] 嘗試彩色匹配: {self.button_id}")
+                        print(f"[INFO] 嘗試彩色匹配: {self.button_id}, 找到 {len(gray_matches)} 個灰階匹配")
                         found_color_match = False
                         for gray_match in gray_matches:
                             x, y, w, h = gray_match
@@ -48,9 +48,10 @@ class Button:
                                 screenshot,
                                 template,
                                 region=local_region,
-                                color=True
+                                color=True,
+                                threshold=self.threshold
                             )
-                            if color_matches:
+                            if color_matches and len(color_matches) > 0:
                                 target_match = gray_match
                                 found_color_match = True
                                 print(f"[INFO] 找到彩色匹配位置: {self.button_id} at {target_match}")
@@ -60,23 +61,28 @@ class Button:
                             print(f"[WARNING] 未找到符合的彩色匹配位置: {self.button_id}")
                             continue
                     else:
-                        print(f"[INFO] 使用灰階匹配位置: {self.button_id}")
+                        print(f"[INFO] 使用灰階匹配位置: {self.button_id} ({len(gray_matches)} 個匹配)")
                         target_match = gray_matches[0]
+                        break
     
             if target_match is not None:
-                # 計算點擊位置
-                x, y, w, h = target_match
-                click_x = x + w // 2
-                click_y = y + h // 2
-                
-                click_success = self.scene_manager.game.click(click_x, click_y)
-                
-                if click_success:
-                    print(f"[INFO] 點擊按鈕: {self.button_id} at ({click_x}, {click_y})")
-                    self.prev_success_position = (click_x, click_y)
-                    return True
-                else:
-                    print(f"[WARNING] 按鈕 {self.button_id} 點擊失敗")
+                try:
+                    # 計算點擊位置
+                    x, y, w, h = target_match
+                    click_x = x + w // 2
+                    click_y = y + h // 2
+                    
+                    click_success = self.scene_manager.game.click(click_x, click_y)
+                    
+                    if click_success:
+                        print(f"[INFO] 點擊按鈕: {self.button_id} at ({click_x}, {click_y})")
+                        self.prev_success_position = (click_x, click_y)
+                        return True
+                    else:
+                        print(f"[WARNING] 按鈕 {self.button_id} 點擊失敗")
+                        return False
+                except (IndexError, TypeError) as e:
+                    print(f"[ERROR] 按鈕 {self.button_id} 計算點擊位置時發生錯誤: {e}")
                     return False
             
             print(f"[WARNING] 未找到按鈕 {self.button_id} 的匹配項")

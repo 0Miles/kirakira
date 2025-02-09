@@ -17,9 +17,9 @@ class BonusGameGemCollectMode(ActionBase):
         bonus_info = check_bonus_info(self.scene_manager)
         current_bonus = bonus_info.get("current_bonus")
         if current_bonus in config.BONUS_GAME_TARGET_ITEMS:
-            if not await self.scene_manager.currentScene.buttons["get"].wait_click(3):
-                self.scene_manager.currentScene.buttons["get"].click_prev_success_position()
-                await asyncio.sleep(1)
+            button_x, button_y = self.scene_manager.get_scaled_position(565,265)
+            self.scene_manager.game.click(button_x, button_y)
+            await asyncio.sleep(1)
         else:
             self.scene_manager.currentScene.buttons["next"].click()
 

@@ -17,8 +17,14 @@ TEMPLATE_ORIGIN_LEFT_BORDER_WIDTH = 1
 BONUS_GAME_TARGET = "star_rank" # 爬星模式
 # 爬星模式設定
 BONUS_GAME_TARGET_ITEMS = {
-    100: ["purple-chip", "red-chip", "里斯", "佛", "羅倫"], # 100星以上
-    110: ["purple-chip", "red-chip", "yellow-chip", "green-chip", "blue-chip", "里斯", "佛", "羅倫"], # 110星以上
+    70: ["死", "亡", "生", "命", "里斯", "佛", "羅倫"], # 100星以上
+    110: ["死", "亡", 
+          "生", "命", 
+          "記", "憶", "记", 
+          "时", "间", "時", "間",
+          "靈", "魂", "碎片",
+          "里斯", 
+          "佛", "羅倫"], # 110星以上
 }
 USE_ITEM_WHEN_FAILED = ["白色石楠1", "白色石楠3", "白色石楠5"]
 MAX_GET_STAR_RANK = 130

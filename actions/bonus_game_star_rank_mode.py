@@ -4,9 +4,11 @@ from game_control.bonus import check_bonus_info, click_bonus_item
 import asyncio
 
 class BonusGameStarRankMode(ActionBase):
+    prev_star_rank = 0
 
-    bonus_get_failed_count = 0
-    
+    async def on_start(self):
+        self.prev_star_rank = 0
+
     @loop("result")
     async def handle_result(self):
         self.scene_manager.currentScene.buttons["ok"].click()
@@ -14,9 +16,20 @@ class BonusGameStarRankMode(ActionBase):
 
     @loop("result_bonus-select")
     async def handle_result_bonus_select(self):
-        bonus_info = check_bonus_info(self.scene_manager)
-        current_bonus = bonus_info.get("current_bonus")
-        star_rank = bonus_info.get("star_rank", 0)
+        bonus_info = check_bonus_info(self.scene_manager, self.prev_star_rank)
+        star_rank = bonus_info.get("star_rank", self.prev_star_rank)
+        print(f"[INFO] prev_star_rank: {self.prev_star_rank}")
+        print(f"[INFO] star_rank: {star_rank}")
+        self.prev_star_rank = star_rank
+
+        current_bonus = bonus_info.get("current_bonus", "")
+
+        if star_rank < 70:
+            print(f"[INFO] star_rank < 70: {star_rank}")
+            # 戰敗的場合，直接關閉遊戲
+            self.stop()
+            self.game.close_app()
+            return
 
         target_items = []
         
@@ -28,19 +41,26 @@ class BonusGameStarRankMode(ActionBase):
             target_items = config.BONUS_GAME_TARGET_ITEMS if config.BONUS_GAME_TARGET_ITEMS else []
 
         print(f"[INFO] 目前星等: {star_rank}")
-        print(f"[INFO] 目前獎勵: {current_bonus}, 接下來的獎勵: {bonus_info.get('next_bonus', [])}")
+        print(f"[INFO] 目前獎勵: {current_bonus}, 接下來的獎勵: {bonus_info.get('next_bonuses', [])}")
         print(f"[INFO] 目標獎勵: {target_items}")
 
-        if any(bonus_name for bonus_name in target_items if bonus_name in current_bonus):
-            if not await self.scene_manager.currentScene.buttons["get"].wait_click(3):
-                self.scene_manager.currentScene.buttons["get"].click_prev_success_position()
+        # 檢查 current_bonus 是否存在於目標獎勵中
+        if current_bonus and any(target_item for target_item in target_items if target_item in current_bonus):
+            button_x, button_y = self.scene_manager.get_scaled_position(565,265)
+            self.scene_manager.game.click(button_x, button_y)
+            await asyncio.sleep(1)
         else:
             self.scene_manager.currentScene.buttons["next"].click()
         await asyncio.sleep(1)
 
     @loop("result_bonus-highlow")
     async def handle_result_bonus_highlow(self):
-        bonus_info = check_bonus_info(self.scene_manager)
+        bonus_info = check_bonus_info(self.scene_manager, self.prev_star_rank)
+        star_rank = bonus_info.get("star_rank", self.prev_star_rank)
+        print(f"[INFO] prev_star_rank: {self.prev_star_rank}")
+        print(f"[INFO] star_rank: {star_rank}")
+        self.prev_star_rank = star_rank
+
         target_num = bonus_info.get("target_num")
         print(f"[INFO] 目標數字: {target_num}")
         if target_num > 7:

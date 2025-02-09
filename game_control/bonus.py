@@ -22,15 +22,28 @@ async def click_bonus_item(scene_manager: SceneManager, item_name: str):
             return True
     return False
 
-def check_bonus_info(scene_manager: SceneManager):
+def check_bonus_info(scene_manager: SceneManager, prev_star_rank=0):
     screenshot = scene_manager.game.capture_screen()
 
     # 使用 get_safe_client_region 處理所有區域
+    # 安全地轉換字串為數字
+    def safe_int(value, default=0):
+        try:
+            # 移除非數字字符
+            num_str = ''.join(c for c in str(value) if c.isdigit())
+            return int(num_str) if num_str else default
+        except (ValueError, TypeError):
+            return default
+
     # 取得當前獎勵等級
-    rank_x, rank_y, rank_w, rank_h = scene_manager.get_safe_client_region(625, 0, 100, 50)
+    rank_x, rank_y, rank_w, rank_h = scene_manager.get_safe_client_region(625, 0, 100, 70)
     star_rank_region = (rank_x, rank_y, rank_w, rank_h)
     star_rank_ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, star_rank_region)
-    star_rank = star_rank_ocr_result[0]['text'] if star_rank_ocr_result else "77"
+    star_rank = star_rank_ocr_result[0]['text'] if star_rank_ocr_result else f"{prev_star_rank + 1}"
+
+    # 確保獎勵等級不會因為OCR辨識錯誤倒退
+    if safe_int(star_rank) < prev_star_rank:
+        star_rank = f"{prev_star_rank}"
 
     # 取得當前目標數字
     target_num_template = {
@@ -70,36 +83,6 @@ def check_bonus_info(scene_manager: SceneManager):
             "name": "exp",
             "current_template": "scenes/result/bonus-highlow/current-exp.png",
             "next_template": "scenes/result/bonus-highlow/exp.png"
-        },
-        {
-            "name": "yellow-chip",
-            "current_template": "scenes/result/bonus-highlow/current-yellow-chip.png",
-            "next_template": "scenes/result/bonus-highlow/yellow-chip.png",
-            "color": True
-        },
-        {
-            "name": "green-chip",
-            "current_template": "scenes/result/bonus-highlow/current-green-chip.png",
-            "next_template": "scenes/result/bonus-highlow/green-chip.png",
-            "color": True
-        },
-        {
-            "name": "blue-chip",
-            "current_template": "scenes/result/bonus-highlow/current-blue-chip.png",
-            "next_template": "scenes/result/bonus-highlow/blue-chip.png",
-            "color": True
-        },
-        {
-            "name": "red-chip",
-            "current_template": "scenes/result/bonus-highlow/current-red-chip.png",
-            "next_template": "scenes/result/bonus-highlow/red-chip.png",
-            "color": True
-        },
-        {
-            "name": "purple-chip",
-            "current_template": "scenes/result/bonus-highlow/current-purple-chip.png",
-            "next_template": "scenes/result/bonus-highlow/purple-chip.png",
-            "color": True
         }
     ]
 
@@ -141,14 +124,11 @@ def check_bonus_info(scene_manager: SceneManager):
             card_name_ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, card_name_ocr_range)
             if card_name_ocr_result:
                 bonus = card_name_ocr_result[0]['text']
-        else:
-            next_bonuses.append(bonus)
+        next_bonuses.append(bonus)
 
     return {
-        "star_rank": int(star_rank),
-        "target_num": int(target_num),
+        "star_rank": safe_int(star_rank, prev_star_rank),
+        "target_num": safe_int(target_num, 12),  # 預設值為 12
         "current_bonus": current_bonus,
-        "next_1_bonus": next_bonuses[0],
-        "next_2_bonus": next_bonuses[1],
-        "next_3_bonus": next_bonuses[2]
+        "next_bonuses": next_bonuses
     }
