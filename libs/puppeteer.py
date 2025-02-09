@@ -11,14 +11,14 @@ from libs.app_control import AppControl
 from libs.scene_manager import SceneManager
 
 class Puppeteer:
-    def __init__(self, steam_control: SteamControl, app_control: AppControl):
+    def __init__(self, steam_control: SteamControl, app_control: AppControl, scene_manager: SceneManager = None):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.actions: Dict[str, ActionBase] = {}
         
         # 初始化共享的控制器實例
         self.steam_control = steam_control
         self.app_control = app_control
-        self.scene_manager = SceneManager(app_control)
+        self.scene_manager = scene_manager if scene_manager else SceneManager(app_control)
 
     async def initialize(self) -> None:
         # 載入所有動作
