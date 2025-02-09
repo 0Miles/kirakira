@@ -11,7 +11,7 @@ from libs.classes.scene import Scene
 from libs.constants import SCENES_DIR, TEMPLATES_DIR
 
 class SceneManager:
-    def __init__(self, game: AppControl):
+    def __init__(self, game: AppControl, template_origin_client_size=None):
         self.currentScene: Optional['Scene'] = None
         self.prevAvailableScene: Optional['Scene'] = None
         self.image_processor = ImageProcessor()
@@ -20,8 +20,78 @@ class SceneManager:
         self.game = game
         self.extra_info = {}
 
+        self._template_origin_client_size = template_origin_client_size  # 設定模板原始尺寸
+        self._scale_ratio = 1
+        self.check_scale_ratio()
+
+    def get_scaled_position(self, x: int, y: int) -> tuple[int, int]:
+        """
+        根據當前視窗縮放比例計算實際座標
+        Args:
+            x: 原始 x 座標
+            y: 原始 y 座標
+        Returns:
+            tuple[int, int]: 縮放後的 (x, y) 座標
+        """
+        if not self._scale_ratio:
+            self.check_scale_ratio()
+        
+        scaled_x = int(x * self._scale_ratio)
+        scaled_y = int(y * self._scale_ratio)
+        
+        return (scaled_x, scaled_y)
+
+    def get_scaled_region(self, x: int, y: int, width: int, height: int) -> tuple[int, int, int, int]:
+        """
+        根據當前視窗縮放比例計算實際區域
+        Args:
+            x: 原始 x 座標
+            y: 原始 y 座標
+            width: 原始寬度
+            height: 原始高度
+        Returns:
+            tuple[int, int, int, int]: 縮放後的 (x, y, width, height)
+        """
+        if not self._scale_ratio:
+            self.check_scale_ratio()
+            
+        scaled_x = int(x * self._scale_ratio)
+        scaled_y = int(y * self._scale_ratio)
+        scaled_width = int(width * self._scale_ratio)
+        scaled_height = int(height * self._scale_ratio)
+        
+        return (scaled_x, scaled_y, scaled_width, scaled_height)
+
+    def check_scale_ratio(self):
+        """獲取當前視窗與模板比例"""
+        if self._template_origin_client_size:
+            window_size_info = self.game.get_window_size_info()
+            if not window_size_info:
+                print("[WARNING] 無法獲取視窗資訊，使用預設比例 1")
+                return 1
+
+            client_width = window_size_info["client_rect"][2]
+            client_height = window_size_info["client_rect"][3]
+            dpi_scale = window_size_info["dpi_scale"]
+
+            # 計算實際的客戶區域尺寸（考慮 DPI 縮放）
+            actual_width = int(client_width / dpi_scale)
+            actual_height = int(client_height / dpi_scale)
+
+            # 計算寬度和高度的縮放比例
+            width_ratio = actual_width / self._template_origin_client_size[0]
+            height_ratio = actual_height / self._template_origin_client_size[1]
+
+            # 使用較小的比例以確保完整顯示
+            self._scale_ratio = min(width_ratio, height_ratio)
+
     def match_template(self, screenshot, template_path, threshold=0.8):
-        return self.image_processor.match_template(screenshot, os.path.join(TEMPLATES_DIR, template_path), threshold)
+        return self.image_processor.match_template(
+            screenshot, 
+            os.path.join(TEMPLATES_DIR, template_path), 
+            threshold=threshold,
+            scale_ratio=self._scale_ratio
+        )
 
     def find_first_matching_template_key(self, screenshot, template_dict, threshold=0.8):
         result = None

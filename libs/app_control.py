@@ -9,13 +9,10 @@ import win32gui
 import win32con
 import win32api
 import win32ui
-import mss
 import pyperclip
-from ctypes import windll, c_int, pointer, POINTER, WINFUNCTYPE, Structure, byref
+from ctypes import windll, c_int, pointer, Structure, byref
 from ctypes.wintypes import RECT, DWORD
-from pywinauto import Application
 
-# 新增 NONCLIENTMETRICS 結構體定義
 class NONCLIENTMETRICS(Structure):
     _fields_ = [
         ('cbSize', DWORD),
@@ -27,7 +24,6 @@ class NONCLIENTMETRICS(Structure):
         # ... 其他欄位省略 ...
     ]
 
-# 新增 DPI 感知相關常數
 PROCESS_PER_MONITOR_DPI_AWARE = 2
 MDT_EFFECTIVE_DPI = 0
 
@@ -121,6 +117,34 @@ class AppControl:
             return dpi_x.value / 96.0
         except Exception:
             return 1.0  # 如果無法獲取 DPI，返回 1.0（無縮放）
+        
+    def get_window_size_info(self, hwnd = None):
+        if self.window_title:
+            try:
+                # 獲取視窗句柄
+                hwnd = hwnd if hwnd else win32gui.FindWindow(None, self.window_title)
+                if not hwnd:
+                    print(f"[ERROR] 找不到視窗: {self.window_title}")
+                    return None
+                
+                window_left, window_top, window_right, window_bottom = win32gui.GetWindowRect(hwnd)
+                window_width = window_right - window_left
+                window_height = window_bottom - window_top
+
+                client_left, client_top, client_right, client_bottom = win32gui.GetClientRect(hwnd)
+                client_width = client_right - client_left
+                client_height = client_bottom - client_top
+
+                dpi_scale = self.get_window_dpi_scaling(hwnd)
+
+                return {
+                    "window_rect": (window_left, window_top, window_width, window_height),
+                    "client_rect": (client_left, client_top, client_width, client_height),
+                    "dpi_scale": dpi_scale
+                }
+            except Exception as e:
+                print(f"[ERROR] 無法獲取客戶區域位置: {e}")
+                return None
 
     def capture_screen(self):
         """ 使用 PrintWindow 截取視窗畫面（支援 DPI 縮放） """
@@ -133,12 +157,13 @@ class AppControl:
                     return None
 
                 # 獲取視窗大小
-                left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-                width = right - left
-                height = bottom - top
-
-                # 獲取 DPI 縮放比例
-                dpi_scale = self.get_window_dpi_scaling(hwnd)
+                window_info = self.get_window_size_info(hwnd)
+                if not window_info:
+                    return None
+                
+                width = window_info['window_rect'][2]
+                height = window_info['window_rect'][3]
+                dpi_scale = window_info['dpi_scale']
                 
                 # 創建設備上下文（DC）
                 hwnd_dc = win32gui.GetWindowDC(hwnd)

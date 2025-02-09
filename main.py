@@ -1,5 +1,6 @@
 import asyncio
 from libs.puppeteer import Puppeteer
+from libs.scene_manager import SceneManager
 from libs.steam_control import SteamControl
 from libs.app_control import AppControl
 import config
@@ -7,10 +8,12 @@ import config
 async def main():
     steam = SteamControl(config.STEAM_GAME_ID)
     game = AppControl(config.GAME_NAME, config.GAME_WINDOW_TITLE)
+    scene_manager = SceneManager(game, (config.TEMPLATE_ORIGIN_CLIENT_WIDTH, config.TEMPLATE_ORIGIN_CLIENT_HEIGHT))
     # 創建並初始化 Puppeteer
     puppeteer = Puppeteer(
         steam_control=steam,
-        app_control=game
+        app_control=game,
+        scene_manager=scene_manager
     )
     await puppeteer.initialize()
     
