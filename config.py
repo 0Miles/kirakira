@@ -11,8 +11,16 @@ TEMPLATE_ORIGIN_TITLE_BAR_HEIGHT = 40
 TEMPLATE_ORIGIN_LEFT_BORDER_WIDTH = 1
 
 # Bonus Game 設定
-TARGET_ITEMS = ["green-tea", "gem"]
-USE_ITEM_WHEN_FAILED = ["flower-1", "flower-3", "flower-5"]
+# BONUS_GAME_TARGET = "gem" # 洗GEM模式
+# BONUS_GAME_TARGET_ITEMS = ["green-tea", "gem"]
+
+BONUS_GAME_TARGET = "star_rank" # 爬星模式
+# 爬星模式設定
+BONUS_GAME_TARGET_ITEMS = ["purple-chip", "red-chip"]
+USE_ITEM_WHEN_FAILED = ["白色石楠1", "白色石楠3", "白色石楠5"]
+MIN_GET_STAR_RANK = 100
+MAX_GET_STAR_RANK = 130
+FAILED_AND_NO_ITEM_OR_OVER_MAX_STAR_RANK = "close" # "close"關閉遊戲 "exit"離開獎勵遊戲 "wait"不動作
 
 
 # Steam 設定

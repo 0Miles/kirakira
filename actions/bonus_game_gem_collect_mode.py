@@ -3,7 +3,7 @@ from libs.classes.action_base import ActionBase, once, loop
 from game_control.bonus import check_bonus_info
 import asyncio
 
-class BonusGame(ActionBase):
+class BonusGameGemCollectMode(ActionBase):
 
     bonus_get_failed_count = 0
     
@@ -16,7 +16,7 @@ class BonusGame(ActionBase):
     async def handle_result_bonus_select(self):
         bonus_info = check_bonus_info(self.scene_manager)
         current_bonus = bonus_info.get("current_bonus")
-        if current_bonus in config.TARGET_ITEMS:
+        if current_bonus in config.BONUS_GAME_TARGET_ITEMS:
             if not await self.scene_manager.currentScene.buttons["get"].wait_click(3):
                 self.scene_manager.currentScene.buttons["get"].click_prev_success_position()
                 await asyncio.sleep(1)

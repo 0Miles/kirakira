@@ -34,6 +34,7 @@ class Scene:
                 scene_manager,
                 button_config.get("region", None),
                 button_config.get("color", False),
+                button_config.get("threshold", 0.9)
             )
         
         # 依據 input_configs 配置實例化不同類型的 Input

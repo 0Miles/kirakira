@@ -5,13 +5,14 @@ if TYPE_CHECKING:
     from libs.scene_manager import SceneManager
 
 class Button:
-    def __init__(self, button_id, template, scene_manager: 'SceneManager', region=None, color=False):
+    def __init__(self, button_id, template, scene_manager: 'SceneManager', region=None, color=False, threshold=0.9):
         self.button_id = button_id
         self.template = template if isinstance(template, list) else [template]
         self.scene_manager = scene_manager
         self.region = region  # [x, y, width, height]
         self.prev_success_position = None
         self.color = color
+        self.threshold = threshold
 
     def click(self):
         try:
@@ -29,6 +30,7 @@ class Button:
                 gray_matches = self.scene_manager.match_template(
                     screenshot, 
                     template,
+                    threshold=0.9,
                     region=search_region,
                     color=False
                 )

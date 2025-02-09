@@ -138,24 +138,12 @@ class SceneManager:
                     with open(config_path, 'r', encoding='utf-8') as f:
                         config = json.load(f)
                     scene_id = config.get('scene_id', filename[:-5])
-                    if not scenes.get(scene_id):
-                        # 修改 button_configs 的處理方式
-                        button_configs = []
-                        for btn_config in config.get('button_configs', []):
-                            btn_data = {
-                                'id': btn_config['id'],
-                                'template': btn_config['template'],
-                                'color': btn_config.get('color', False)
-                            }
-                            if 'region' in btn_config:
-                                btn_data['region'] = btn_config['region']
-                            button_configs.append(btn_data)
-                        
+                    if not scenes.get(scene_id):                        
                         scene_instance = Scene(
                             scene_manager=self,
                             scene_id=scene_id,
                             template=config.get('template', []),
-                            button_configs=button_configs,
+                            button_configs=config.get('button_configs', []),
                             input_configs=config.get('input_configs', [])
                         )
                         scenes[scene_id] = scene_instance

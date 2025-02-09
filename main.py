@@ -49,7 +49,10 @@ async def main():
                     print("[INFO] 關閉遊戲，等待30分鐘後再開")
                     await asyncio.sleep(1800)
                 else:
-                    await puppeteer.start_action("BonusGame")
+                    if config.BONUS_GAME_TARGET == "gem":
+                        await puppeteer.start_action("BonusGameGemCollectMode")
+                    elif config.BONUS_GAME_TARGET == "star_rank":
+                        await puppeteer.start_action("BonusGameStarRankMode")
         except Exception as e:
             print(f"[ERROR] 發生錯誤: {e}")
             puppeteer.logger.error(f"發生錯誤: {e}")
