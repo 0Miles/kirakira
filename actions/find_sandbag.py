@@ -48,7 +48,7 @@ class FindSandbag(ActionBase):
     async def handle_matching_diethelm_wating_dialog(self):
         await asyncio.sleep(3)
         room_list = check_room_list(self.scene_manager)
-        if not any(room["owner"] == config.FIND_SANDBAG_USERNAME for room in room_list):
+        if len(room_list) > 0 and not any(room["owner"] == config.FIND_SANDBAG_USERNAME for room in room_list):
             self.scene_manager.currentScene.buttons["cancel"].click()
         await asyncio.sleep(1)
 
