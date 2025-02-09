@@ -69,6 +69,7 @@ class ActionBase(ABC):
         self._again_flag = False
 
         self._setup_scene_handlers()
+        self._refresh_failed_count = 0
 
     def _setup_scene_handlers(self):
         """自動註冊場景處理器"""
@@ -88,7 +89,15 @@ class ActionBase(ABC):
         await asyncio.sleep(1)
 
     async def process(self):
-        await self.scene_manager.refresh()
+        if not await self.scene_manager.refresh():
+            self._refresh_failed_count += 1
+            if self._refresh_failed_count > 10:
+                self.stop()
+                self.logger.error("[Error] 無法刷新場景，停止 Action")
+            return
+        else:
+            self._refresh_failed_count = 0
+
         if not self.scene_manager.currentScene:
             await self.on_unknown_scene()
             return

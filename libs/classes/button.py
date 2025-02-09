@@ -43,11 +43,12 @@ class Button:
     async def wait_click(self, max_retry=10, interval=1):
         start_scene_id = self.scene_manager.currentScene.scene_id if self.scene_manager.currentScene else None
         for i in range(max_retry):
+            print(f"[INFO] 等待點擊按鈕 {self.button_id} {i}/{max_retry}")
             if self.click():
                 print(f"[INFO] 點擊按鈕 {self.button_id} 成功")
                 return True
             await asyncio.sleep(interval)
-            self.scene_manager.refresh()
+            await self.scene_manager.refresh()
             if not self.scene_manager.currentScene or self.scene_manager.currentScene.scene_id != start_scene_id:
                 print(f"[INFO] 已轉場，停止等待按鈕 {self.button_id}")
                 return True

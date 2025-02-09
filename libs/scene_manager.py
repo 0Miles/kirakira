@@ -80,7 +80,7 @@ class SceneManager:
         if not window_geometry:
             print("[ERROR] 無法獲取視窗大小與位置。")
             await asyncio.sleep(3)
-            return
+            return False
 
         screenshot = self.game.capture_screen()
         detected_scene = self.find_matching_scene(screenshot)
@@ -92,3 +92,4 @@ class SceneManager:
                 print(f"[SCENE] 場景切換: {self.currentScene.scene_id}")
                 if hasattr(self.currentScene, "execute_actions"):
                     self.currentScene.execute_actions()
+        return True
