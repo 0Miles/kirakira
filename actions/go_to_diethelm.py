@@ -20,9 +20,11 @@ class GoToDiethelm(ActionBase):
     async def handle_lobby(self):
         await self.scene_manager.currentScene.buttons["duel"].wait_click()
 
-    @once("matching")
+    @loop("matching")
     async def handle_matching(self):
-        await self.scene_manager.currentScene.buttons["diethelm"].wait_click()
+        button_x, button_y = self.scene_manager.get_scaled_position(400,160)
+        self.scene_manager.game.click(button_x, button_y)
+        await asyncio.sleep(1)
 
     @once("matching_diethelm")
     async def handle_matching_diethelm(self):
