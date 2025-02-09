@@ -2,8 +2,8 @@
     "identification_images": [
         "scenes/result/result.png",
         [
-            "scenes/result/bonus-select/button-get.png",
-            "scenes/result/bonus-select/button-get-hover.png"
+            "scenes/result/bonus-select/button-next.png",
+            "scenes/result/bonus-select/button-next-hover.png"
         ]
     ],
     "button_configs": [
