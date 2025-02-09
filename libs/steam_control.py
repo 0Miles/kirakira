@@ -1,12 +1,11 @@
 import subprocess
-import time
 import psutil
 import winreg
 import os
 
 class SteamControl:
-    def __init__(self, game_id):
-        self.game_id = game_id
+    def __init__(self, default_game_id):
+        self.default_game_id = default_game_id
     
     def is_steam_running(self):
         for process in psutil.process_iter(attrs=['pid', 'name']):
@@ -55,8 +54,9 @@ class SteamControl:
         else:
             print("Steam 已在運行中。")
     
-    def start_game(self):
+    def start_game(self, game_id):
+        start_game_id = game_id if game_id else self.default_game_id
         if not self.is_steam_running():
             self.start_steam()
-        subprocess.Popen(f"start steam://rungameid/{self.game_id}", shell=True)
-        print(f"正在啟動遊戲 (ID: {self.game_id})...")
+        subprocess.Popen(f"start steam://rungameid/{start_game_id}", shell=True)
+        print(f"正在啟動遊戲 (ID: {start_game_id})...")
