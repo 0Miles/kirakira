@@ -50,11 +50,11 @@ class FindSandbag(ActionBase):
         room_list = check_room_list(self.scene_manager)
         if not any(room["owner"] == config.FIND_SANDBAG_USERNAME for room in room_list):
             self.scene_manager.currentScene.buttons["cancel"].click()
-        await asyncio.sleep(.5)
+        await asyncio.sleep(1)
 
     @once("now-loading", None, 300)
     async def handle_now_loading(self):
-        pass
+        await asyncio.sleep(1)
 
     @once("matching_diethelm_ap-not-enough-dialog")
     async def handle_matching_diethelm_ap_not_enough_dialog(self):
