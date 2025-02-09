@@ -54,7 +54,7 @@ class SteamControl:
         else:
             print("Steam 已在運行中。")
     
-    def start_game(self, game_id):
+    def start_game(self, game_id=None):
         start_game_id = game_id if game_id else self.default_game_id
         if not self.is_steam_running():
             self.start_steam()
