@@ -44,6 +44,7 @@ def check_bonus_info(scene_manager: SceneManager):
     current_bonus_region = (curr_x, curr_y, curr_w, curr_h)
     current_bonus_screenshot = screenshot[current_bonus_region[1]:current_bonus_region[1]+current_bonus_region[3],
                                        current_bonus_region[0]:current_bonus_region[0]+current_bonus_region[2]]
+
     current_bonus = scene_manager.find_first_matching_template_key(current_bonus_screenshot, current_bonus_template) or "unknown"
 
     # 下一個獎勵模板
