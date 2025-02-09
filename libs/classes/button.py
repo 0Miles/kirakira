@@ -47,7 +47,8 @@ class Button:
                 print(f"[INFO] 點擊按鈕 {self.button_id} 成功")
                 return True
             await asyncio.sleep(interval)
-            if self.scene_manager.currentScene.scene_id != start_scene_id:
+            self.scene_manager.refresh()
+            if not self.scene_manager.currentScene or self.scene_manager.currentScene.scene_id != start_scene_id:
                 print(f"[INFO] 已轉場，停止等待按鈕 {self.button_id}")
                 return True
         raise Exception(f"無法點擊按鈕 {self.button_id} (重試 {max_retry} 次)")
