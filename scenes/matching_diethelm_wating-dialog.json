@@ -1,6 +1,6 @@
 {
     "scene_id": "matching_diethelm_wating-dialog",
-    "identification_images": [
+    "template": [
         "scenes/matching/title.png",
         "scenes/matching/diethelm/wating/wating-left-bottom.png",
         "scenes/matching/diethelm/wating/wating-right-bottom.png",

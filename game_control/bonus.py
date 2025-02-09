@@ -33,12 +33,28 @@ def check_bonus_info(scene_manager: SceneManager):
                                     target_num_region[0]:target_num_region[0]+target_num_region[2]]
     target_num = scene_manager.find_first_matching_template_key(target_num_screenshot, target_num_template) or "12"
 
-    # 當前獎勵模板
-    current_bonus_template = {
-        "gem": "scenes/result/bonus-highlow/current-gem.png",
-        "green-tea": "scenes/result/bonus-highlow/current-green-tea.png"
-    }
+    # 獎勵卡設置
+    bonus_card_list = [
+        {
+            "name": "gem",
+            "current_template": "scenes/result/bonus-highlow/current-gem.png",
+            "next_template": "scenes/result/bonus-highlow/gem.png"
+        },
+        {
+            "name": "green-tea",
+            "current_template": "scenes/result/bonus-highlow/current-green-tea.png",
+            "next_template": "scenes/result/bonus-highlow/green-tea.png"
+        },
+        {
+            "name": "exp",
+            "current_template": "scenes/result/bonus-highlow/current-exp.png",
+            "next_template": "scenes/result/bonus-highlow/exp.png"
+        }
+    ]
     
+    # 當前獎勵模板
+    current_bonus_template = {item['name']: item['current_template'] for item in bonus_card_list}
+
     # 調整當前獎勵區域
     curr_x, curr_y, curr_w, curr_h = scene_manager.get_safe_client_region(350, 380, 250, 350)
     current_bonus_region = (curr_x, curr_y, curr_w, curr_h)
@@ -48,11 +64,7 @@ def check_bonus_info(scene_manager: SceneManager):
     current_bonus = scene_manager.find_first_matching_template_key(current_bonus_screenshot, current_bonus_template) or "unknown"
 
     # 下一個獎勵模板
-    next_bonus_template = {
-        "gem": "scenes/result/bonus-highlow/gem.png",
-        "green-tea": "scenes/result/bonus-highlow/green-tea.png"
-    }
-
+    next_bonus_template = {item['name']: item['next_template'] for item in bonus_card_list}
     # 調整三個下一個獎勵區域
     next_regions = []
     for x_start in [603, 715, 828]:

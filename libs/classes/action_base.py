@@ -92,8 +92,8 @@ class ActionBase(ABC):
         if not await self.scene_manager.refresh():
             self._refresh_failed_count += 1
             if self._refresh_failed_count > 10:
-                self.stop()
-                self.logger.error("[Error] 無法刷新場景，停止 Action")
+                self.logger.error("[Error] 無法更新場景，停止 Action")
+                raise Exception("無法更新場景")
             return
         else:
             self._refresh_failed_count = 0
@@ -139,6 +139,15 @@ class ActionBase(ABC):
         """
         pass
 
+    def check_game_available(self):
+        """
+        檢查遊戲是否可用
+        """
+        if not self.game.is_app_running():
+            self.logger.error("遊戲未啟動或不在活動狀態")
+            self.stop()
+            return False
+
     async def run(self):
         """
         在非同步循環中執行腳本流程
@@ -155,6 +164,7 @@ class ActionBase(ABC):
             while self._running:
                 await self.process()
                 await asyncio.sleep(0.1)
+                self.check_game_available()
         except Exception as e:
             self.logger.error(f"發生錯誤, Action:{self.__class__.__name__}, Scene:{self.scene_manager.currentScene.scene_id if self.scene_manager.currentScene else None}: {e}")
             self._running = False

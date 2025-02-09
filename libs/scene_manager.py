@@ -80,9 +80,8 @@ class SceneManager:
             height_ratio = actual_height / self._template_origin_client_size[1]
 
             self._scale_ratio = min(width_ratio, height_ratio)
-            print(self._scale_ratio)
 
-    def match_template(self, screenshot, template_path, threshold=0.8, region=None):
+    def match_template(self, screenshot, template_path, threshold=0.8, region=None, color=False):
         offset_x, offset_y = 0, 0
         
         if region:
@@ -91,12 +90,20 @@ class SceneManager:
             screenshot = screenshot[y:y+h, x:x+w]  # 裁剪區域
             offset_x, offset_y = x, y
 
-        match_region = self.image_processor.match_template(
-            screenshot, 
-            os.path.join(TEMPLATES_DIR, template_path), 
-            threshold=threshold,
-            scale_ratio=self._scale_ratio
-        )
+        if color:
+            match_region = self.image_processor.match_template_color(
+                screenshot, 
+                os.path.join(TEMPLATES_DIR, template_path), 
+                threshold=threshold,
+                scale_ratio=self._scale_ratio
+            )
+        else:
+            match_region = self.image_processor.match_template(
+                screenshot, 
+                os.path.join(TEMPLATES_DIR, template_path), 
+                threshold=threshold,
+                scale_ratio=self._scale_ratio
+            )
 
         if match_region:
             return [(x + offset_x, y + offset_y, w, h) for x, y, w, h in match_region]
@@ -138,6 +145,7 @@ class SceneManager:
                             btn_data = {
                                 'id': btn_config['id'],
                                 'template': btn_config['template'],
+                                'color': btn_config.get('color', False)
                             }
                             if 'region' in btn_config:
                                 btn_data['region'] = btn_config['region']
@@ -146,7 +154,7 @@ class SceneManager:
                         scene_instance = Scene(
                             scene_manager=self,
                             scene_id=scene_id,
-                            identification_images=config.get('identification_images', []),
+                            template=config.get('template', []),
                             button_configs=button_configs,
                             input_configs=config.get('input_configs', [])
                         )
@@ -157,7 +165,7 @@ class SceneManager:
         for scene_id, scene in self.scenes.items():
             if parent_scene and not scene_id.startswith(parent_scene + "_"):
                 continue
-            required_images = scene.identification_images
+            required_images = scene.template
             match_all = all(
                 any(self.match_template(screenshot, img, threshold=0.9)
                     for img in (img_list if isinstance(img_list, list) else [img_list]))

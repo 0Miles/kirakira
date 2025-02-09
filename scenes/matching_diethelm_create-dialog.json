@@ -1,6 +1,6 @@
 {
     "scene_id": "matching_diethelm_create-dialog",
-    "identification_images": [
+    "template": [
         "scenes/matching/diethelm/create-dialog/title.png",
         "scenes/matching/diethelm/create-dialog/dialog-title.png"
     ],

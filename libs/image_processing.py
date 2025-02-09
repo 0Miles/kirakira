@@ -84,6 +84,32 @@ class ImageProcessor:
 
         return matches
     
+    def match_template_color(self, source_image, template_path, threshold=0.8, scale_ratio=1.0):
+        """
+        使用模板匹配在彩色圖像中查找目標區域。
+        Args:
+            source_image: 原始彩色圖像 (numpy array)
+            template_path: 模板圖像的檔案路徑
+            threshold: 匹配閾值 (0~1)
+            scale_ratio: 模板縮放比例
+        Returns:
+            匹配到的區域列表 [(x, y, w, h)]
+        """
+        template_image = self.load_image(template_path)
+        
+        if scale_ratio != 1.0:
+            new_width = int(template_image.shape[1] * scale_ratio)
+            new_height = int(template_image.shape[0] * scale_ratio)
+            template_image = cv2.resize(template_image, (new_width, new_height), interpolation=cv2.INTER_AREA)
+        
+        # 直接在彩色圖像上進行匹配
+        result = cv2.matchTemplate(source_image, template_image, cv2.TM_CCOEFF_NORMED)
+        locations = np.where(result >= threshold)
+        matches = [(pt[0], pt[1], template_image.shape[1], template_image.shape[0]) 
+                  for pt in zip(*locations[::-1])]
+
+        return matches
+
     def save_screenshot(self, image, filename="screenshot.png"):
         """ 儲存 OpenCV 圖像 """
         cv2.imwrite(filename, image)

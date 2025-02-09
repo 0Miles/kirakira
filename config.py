@@ -10,6 +10,10 @@ TEMPLATE_ORIGIN_CLIENT_HEIGHT = 888  # 製作 Template 時使用的遊戲原始�
 TEMPLATE_ORIGIN_TITLE_BAR_HEIGHT = 40
 TEMPLATE_ORIGIN_LEFT_BORDER_WIDTH = 1
 
+# Bonus Game 設定
+TARGET_ITEMS = ["green-tea", "gem"]
+USE_ITEM_WHEN_FAILED = ["flower-1", "flower-3", "flower-5"]
+
 
 # Steam 設定
 STEAM_EXECUTABLE_PATH = r"C:\\Program Files (x86)\\Steam\\Steam.exe"  # Steam 執行檔路徑

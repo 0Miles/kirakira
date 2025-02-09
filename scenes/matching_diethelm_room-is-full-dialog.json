@@ -1,5 +1,5 @@
 {
-    "identification_images": [
+    "template": [
         "scenes/matching/diethelm/room-is-full-dialog/title.png",
         "scenes/matching/diethelm/room-is-full-dialog/dialog.png"
     ],

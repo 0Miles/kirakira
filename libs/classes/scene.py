@@ -7,17 +7,17 @@ if TYPE_CHECKING:
 
 class Scene:
     scene_id: str
-    identification_images: List[str]
+    template: List[str]
     scene_manager: 'SceneManager'
-    button_configs: List[Dict] = []  # 定義按鈕結構 [{id: str, template: str | list}]
+    button_configs: List[Dict] = []  # 定義按鈕結構 [{id: str, template: str | list, region: list, color: bool}]
     input_configs: List[Dict] = []  # 定義輸入框結構 [{id: str, type: str, label_template: str, offset: (x, y), input_template: str, position: str, checked_template: str | list}]
 
-    def __init__(self, scene_manager: 'SceneManager' = None, scene_id: str = None, identification_images: List[str] = None, button_configs: List[Dict] = None, input_configs: List[Dict] = None):
+    def __init__(self, scene_manager: 'SceneManager' = None, scene_id: str = None, template: List[str] = None, button_configs: List[Dict] = None, input_configs: List[Dict] = None):
         self.scene_manager = scene_manager
         if scene_id is not None:
             self.scene_id = scene_id
-        if identification_images is not None:
-            self.identification_images = identification_images
+        if template is not None:
+            self.template = template
         if button_configs is not None:
             self.button_configs = button_configs
         if input_configs is not None:
@@ -33,6 +33,7 @@ class Scene:
                 button_config["template"], 
                 scene_manager,
                 button_config.get("region", None),
+                button_config.get("color", False),
             )
         
         # 依據 input_configs 配置實例化不同類型的 Input

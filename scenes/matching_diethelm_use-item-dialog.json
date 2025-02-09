@@ -1,5 +1,5 @@
 {
-    "identification_images": [
+    "template": [
         "scenes/matching/title.png",
         [
             "scenes/use-item-dialog/button-close.png",
@@ -24,7 +24,8 @@
         },
         {
             "id": "green-tea",
-            "template": ["scenes/use-item-dialog/button-green-tea.png"]
+            "template": ["scenes/use-item-dialog/button-green-tea.png"],
+            "color": true
         }
     ]
 }

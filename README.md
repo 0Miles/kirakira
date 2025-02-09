@@ -29,7 +29,7 @@ Scene 系統是一套用於自動化腳本的畫面狀態管理框架。每個 S
 - 處理不同狀態間的轉換
 
 #### 1. 畫面狀態識別
-每個 Scene 都必須提供識別用的圖片（identification_images），系統會透過這些圖片來判斷當前是否處於該狀態。識別圖片必須是該畫面中獨特且穩定的視覺元素。
+每個 Scene 都必須提供識別用的圖片（template），系統會透過這些圖片來判斷當前是否處於該狀態。識別圖片必須是該畫面中獨特且穩定的視覺元素。
 
 #### 2. 互動元件管理
 Scene 可以管理兩種主要的互動元件：
@@ -45,7 +45,7 @@ Scene 透過 SceneManager 來管理狀態轉換，確保腳本能在不同畫面
 ```json
 {
     "scene_id": "your-scene-id",                    // 場景識別碼
-    "identification_images": [                      // 用於識別場景的圖片
+    "template": [                      // 用於識別場景的圖片
         "scenes/your-scene/identifier1.png",        // 可設定多個識別圖片
         "scenes/your-scene/identifier2.png"         // 所有圖片都必須能被找到才算符合
     ],

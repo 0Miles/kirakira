@@ -1,6 +1,6 @@
 {
     "scene_id": "fighting",
-    "identification_images": [
+    "template": [
         "scenes/fighting/turn.png",
         [
             "scenes/fighting/button-ok-hover.png",

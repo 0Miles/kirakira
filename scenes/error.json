@@ -1,6 +1,6 @@
 {
     "scene_id": "error",
-    "identification_images": [
+    "template": [
         ["scenes/error.png", "scenes/error2.png"]
     ]
 }

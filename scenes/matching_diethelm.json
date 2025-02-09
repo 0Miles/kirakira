@@ -1,6 +1,6 @@
 {
     "scene_id": "matching_diethelm",
-    "identification_images": [
+    "template": [
         "scenes/matching/title.png",
         "scenes/matching/left-bottom.png",
         "scenes/matching/right-top.png",

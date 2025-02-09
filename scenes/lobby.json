@@ -1,6 +1,6 @@
 {
     "scene_id": "lobby",
-    "identification_images": [
+    "template": [
         "scenes/lobby/left-top.png",
         "scenes/lobby/left-bottom.png",
         "scenes/lobby/left.png"

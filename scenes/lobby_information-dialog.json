@@ -1,6 +1,6 @@
 {
     "scene_id": "lobby_information-dialog",
-    "identification_images": [
+    "template": [
         "scenes/lobby/information-dialog/dialog-title.png",
         [
             "scenes/lobby/information-dialog/button-ok.png",

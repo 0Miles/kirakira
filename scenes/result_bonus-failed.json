@@ -1,5 +1,5 @@
 {
-    "identification_images": [
+    "template": [
         "scenes/result/result.png",
         [
             "scenes/result/bonus-failed/button-end.png",

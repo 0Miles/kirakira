@@ -240,7 +240,7 @@ class AppControl:
         return None
     
     def click(self, x, y):
-        """ 使用 Windows 訊息在非活動視窗內點擊（不移動滑鼠且不激活視窗） """
+        """ 使用 Windows 訊息在非活動視窗內點擊 """
         try:
             # 獲取目標視窗的句柄
             hwnd = win32gui.FindWindow(None, self.window_title)
@@ -272,7 +272,7 @@ class AppControl:
             return False
 
     def input_text(self, text, x, y, max_retries=3):
-        """ 在非活動視窗的指定位置輸入文字（不需要激活視窗） """
+        """ 在非活動視窗的指定位置輸入文字 """
         for attempt in range(max_retries):
             try:
                 hwnd = win32gui.FindWindow(None, self.window_title)
