@@ -3,6 +3,8 @@ from game_control.bonus import check_bonus_info
 import asyncio
 
 class BonusGame(ActionBase):
+
+    bonus_get_failed_count = 0
     
     @loop("result")
     async def handle_result(self):
@@ -17,18 +19,17 @@ class BonusGame(ActionBase):
             self.scene_manager.currentScene.buttons["get"].click()
             await asyncio.sleep(1)
         else:
-            if not self.scene_manager.currentScene.buttons["next"].click():
+            if not self.scene_manager.currentScene.buttons["get"].click():
                 # 連續點擊失敗計數
-                self.scene_manager.extra_info["bonus_next_failed_count"] = self.scene_manager.extra_info.get("bonus_next_failed_count", 0) + 1
-                if self.scene_manager.extra_info["bonus_next_failed_count"] >= 3:
-                    raise Exception("Next button click failed 3 times")
-                
-                # Next 按鈕可能會被骰子擋住，點擊上一個成功位置
-                self.scene_manager.currentScene.buttons["next"].click_prev_success_position()
+                self.bonus_get_failed_count += 1
+                if self.bonus_get_failed_count >= 3:
+                    raise Exception("get button click failed 3 times")
+                # get 按鈕可能會被骰子擋住，點擊上一個成功位置
+                self.scene_manager.currentScene.buttons["get"].click_prev_success_position()
                 # 等待 1 秒看看有沒有轉場
                 await asyncio.sleep(1)
             else:
-                self.scene_manager.extra_info["bonus_next_failed_count"] = 0
+                self.bonus_get_failed_count = 0
                 await asyncio.sleep(1)
 
     @loop("result_bonus-highlow")
