@@ -21,7 +21,7 @@ class Button:
                 search_region = None
                 if self.region:
                     print(f"[INFO] 使用指定區域進行匹配: {self.region}")
-                    search_region = self.scene_manager.get_scaled_region(*self.region)
+                    search_region = self.scene_manager.get_safe_client_region(*self.region)
                 
                 matches = self.scene_manager.match_template(
                     screenshot, 
