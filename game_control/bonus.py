@@ -111,9 +111,6 @@ def check_bonus_info(scene_manager: SceneManager):
                 return item["name"]
         return "unknown"
     
-    # 當前獎勵模板
-    current_bonus_template = {item['name']: item['current_template'] for item in bonus_card_list}
-
     # 調整當前獎勵區域
     curr_x, curr_y, curr_w, curr_h = scene_manager.get_safe_client_region(350, 380, 250, 350)
     current_bonus_region = (curr_x, curr_y, curr_w, curr_h)
@@ -121,9 +118,13 @@ def check_bonus_info(scene_manager: SceneManager):
                                        current_bonus_region[0]:current_bonus_region[0]+current_bonus_region[2]]
 
     current_bonus = find_bonus_card(current_bonus_screenshot)
+    if current_bonus == "unknown":
+        card_name_ocr_range = scene_manager.get_safe_client_region(405, 418, 155, 30)
+        card_name_ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, card_name_ocr_range)
+        if card_name_ocr_result:
+            current_bonus = card_name_ocr_result[0]['text']
 
-    # 下一個獎勵模板
-    next_bonus_template = {item['name']: item['next_template'] for item in bonus_card_list}
+
     # 調整三個下一個獎勵區域
     next_regions = []
     for x_start in [603, 715, 828]:
@@ -135,7 +136,13 @@ def check_bonus_info(scene_manager: SceneManager):
         bonus_screenshot = screenshot[region[1]:region[1]+region[3], 
                                    region[0]:region[0]+region[2]]
         bonus = find_bonus_card(bonus_screenshot, "next_template")
-        next_bonuses.append(bonus)
+        if bonus == "unknown":
+            card_name_ocr_range = scene_manager.get_safe_client_region(region[0] + 30, region[1], 70, 26)
+            card_name_ocr_result = scene_manager.ocr_processor.process_screenshot(screenshot, card_name_ocr_range)
+            if card_name_ocr_result:
+                bonus = card_name_ocr_result[0]['text']
+        else:
+            next_bonuses.append(bonus)
 
     return {
         "star_rank": int(star_rank),

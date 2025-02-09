@@ -16,8 +16,22 @@ class BonusGameStarRankMode(ActionBase):
     async def handle_result_bonus_select(self):
         bonus_info = check_bonus_info(self.scene_manager)
         current_bonus = bonus_info.get("current_bonus")
+        star_rank = bonus_info.get("star_rank", 0)
 
-        if current_bonus in config.BONUS_GAME_TARGET_ITEMS and (not config.MIN_GET_STAR_RANK or bonus_info.get("star_rank", 0) > config.MIN_GET_STAR_RANK):
+        target_items = []
+        
+        if isinstance(config.BONUS_GAME_TARGET_ITEMS, dict):
+            for rank_threshold in sorted(config.BONUS_GAME_TARGET_ITEMS.keys()):
+                if star_rank >= rank_threshold:
+                    target_items = config.BONUS_GAME_TARGET_ITEMS.get(rank_threshold, [])
+        else:
+            target_items = config.BONUS_GAME_TARGET_ITEMS if config.BONUS_GAME_TARGET_ITEMS else []
+
+        print(f"[INFO] 目前星等: {star_rank}")
+        print(f"[INFO] 目前獎勵: {current_bonus}, 接下來的獎勵: {bonus_info.get('next_bonus', [])}")
+        print(f"[INFO] 目標獎勵: {target_items}")
+
+        if any(bonus_name for bonus_name in target_items if bonus_name in current_bonus):
             if not await self.scene_manager.currentScene.buttons["get"].wait_click(3):
                 self.scene_manager.currentScene.buttons["get"].click_prev_success_position()
         else:
