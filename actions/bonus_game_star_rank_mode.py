@@ -1,13 +1,13 @@
 import config
 from libs.classes.action_base import ActionBase, once, loop
-from game_control.bonus import check_bonus_info, click_bonus_item
+from services.bonus_service import BonusService
 import asyncio
 
 class BonusGameStarRankMode(ActionBase):
-    prev_star_rank = 0
+    bonus_service: BonusService
 
     async def on_start(self):
-        self.prev_star_rank = 0
+        self.bonus_service.reset_prev_star_rank()
 
     @loop("result")
     async def handle_result(self):
@@ -16,12 +16,9 @@ class BonusGameStarRankMode(ActionBase):
 
     @loop("result_bonus-select")
     async def handle_result_bonus_select(self):
-        bonus_info = check_bonus_info(self.scene_manager, self.prev_star_rank)
-        star_rank = bonus_info.get("star_rank", self.prev_star_rank)
-        print(f"[INFO] prev_star_rank: {self.prev_star_rank}")
-        print(f"[INFO] star_rank: {star_rank}")
-        self.prev_star_rank = star_rank
-
+        bonus_info = self.bonus_service.check_bonus_info()
+        star_rank = bonus_info.get("star_rank", self.bonus_service.prev_star_rank)
+        
         current_bonus = bonus_info.get("current_bonus", "")
 
         if star_rank < 70:
@@ -55,11 +52,7 @@ class BonusGameStarRankMode(ActionBase):
 
     @loop("result_bonus-highlow")
     async def handle_result_bonus_highlow(self):
-        bonus_info = check_bonus_info(self.scene_manager, self.prev_star_rank)
-        star_rank = bonus_info.get("star_rank", self.prev_star_rank)
-        print(f"[INFO] prev_star_rank: {self.prev_star_rank}")
-        print(f"[INFO] star_rank: {star_rank}")
-        self.prev_star_rank = star_rank
+        bonus_info = self.bonus_service.check_bonus_info()
 
         target_num = bonus_info.get("target_num")
         print(f"[INFO] 目標數字: {target_num}")
@@ -73,7 +66,7 @@ class BonusGameStarRankMode(ActionBase):
 
     @loop("result_bonus-failed")
     async def handle_result_bonus_failed(self):
-        bonus_info = check_bonus_info(self.scene_manager)
+        bonus_info = self.bonus_service.check_bonus_info()
         if config.USE_ITEM_WHEN_FAILED and len(config.USE_ITEM_WHEN_FAILED) > 0 and (not config.MAX_GET_STAR_RANK or bonus_info.get("star_rank", 0) < config.MAX_GET_STAR_RANK):
             self.scene_manager.currentScene.buttons["use-item"].click()
         else:
@@ -92,7 +85,7 @@ class BonusGameStarRankMode(ActionBase):
         use_item = False
         for use_item in config.USE_ITEM_WHEN_FAILED:
             print(f"[INFO] 尋找: {use_item}")
-            click_item_result = await click_bonus_item(self.scene_manager, use_item)
+            click_item_result = await self.bonus_service.click_bonus_item(use_item)
             await asyncio.sleep(.5)
             if click_item_result:
                 print(f"[INFO] 嘗試使用: {use_item}")

@@ -1,10 +1,12 @@
 import time
-from game_control.room import check_room_list
 from libs.classes.action_base import ActionBase, once, loop
 import asyncio
 import config
+from services.room_service import RoomService
 
 class FindSandbag(ActionBase):
+    room_service: RoomService
+
     fight_start_time = None  # 新增時間戳記屬性
 
     async def on_start(self):
@@ -50,7 +52,7 @@ class FindSandbag(ActionBase):
     @loop("matching_diethelm_wating-dialog")
     async def handle_matching_diethelm_wating_dialog(self):
         await asyncio.sleep(3)
-        room_list = check_room_list(self.scene_manager)
+        room_list = self.room_service.check_room_list()
         if len(room_list) > 0 and not any(room["owner"] == config.FIND_SANDBAG_USERNAME for room in room_list):
             self.scene_manager.currentScene.buttons["cancel"].click()
         await asyncio.sleep(1)

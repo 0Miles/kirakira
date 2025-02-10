@@ -1,12 +1,13 @@
 import config
 from libs.classes.action_base import ActionBase, once, loop
-from game_control.bonus import check_bonus_info
+from services.bonus_service import BonusService
 import asyncio
 
 class BonusGameGemCollectMode(ActionBase):
-
-    bonus_get_failed_count = 0
+    bonus_service: BonusService
     
+    bonus_get_failed_count = 0
+
     @loop("result")
     async def handle_result(self):
         self.scene_manager.currentScene.buttons["ok"].click()
@@ -14,7 +15,7 @@ class BonusGameGemCollectMode(ActionBase):
 
     @loop("result_bonus-select")
     async def handle_result_bonus_select(self):
-        bonus_info = check_bonus_info(self.scene_manager)
+        bonus_info = self.bonus_service.check_bonus_info()
         current_bonus = bonus_info.get("current_bonus")
         if current_bonus in config.BONUS_GAME_TARGET_ITEMS:
             button_x, button_y = self.scene_manager.get_scaled_position(565,265)
@@ -25,7 +26,7 @@ class BonusGameGemCollectMode(ActionBase):
 
     @loop("result_bonus-highlow")
     async def handle_result_bonus_highlow(self):
-        bonus_info = check_bonus_info(self.scene_manager)
+        bonus_info = self.bonus_service.check_bonus_info()
         target_num = bonus_info.get("target_num")
         print(f"[INFO] 目標數字: {target_num}")
         if target_num > 7:

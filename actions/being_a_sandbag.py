@@ -1,21 +1,22 @@
-from game_control.room import check_room_list, join_room
 from libs.classes.action_base import ActionBase, once, loop
+from services.room_service import RoomService
 import asyncio
 import config
 
 class BeingASandbag(ActionBase):
+    room_service: RoomService
 
     @loop("matching_diethelm")
     async def handle_matching_diethelm(self):
-        room_list = check_room_list(self.scene_manager)
+        # 使用注入的服務
+        room_list = self.room_service.check_room_list()
         if room_list:
             target_room = next(
                 (room for room in room_list if config.AUTO_SANDBAG_TARGET_USERNAME in room['owner']), 
                 None
             )
             if target_room:
-                join_room(
-                    self.scene_manager, 
+                await self.room_service.join_room(
                     target_room['position'], 
                     target_room['owner']
                 )
