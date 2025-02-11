@@ -19,7 +19,7 @@ class BonusGameStarRankMode(ActionBase):
         bonus_info = self.bonus_service.check_bonus_info()
         star_rank = bonus_info.get("star_rank", self.bonus_service.prev_star_rank)
 
-        if star_rank < 70:
+        if config.BONUS_GAME_MIN_STAR_RANK and star_rank < 70:
             print(f"[INFO] star_rank < 70: {star_rank}")
             # 戰敗的場合，直接關閉遊戲
             self.stop()
@@ -37,14 +37,14 @@ class BonusGameStarRankMode(ActionBase):
     @loop("result_bonus-failed")
     async def handle_result_bonus_failed(self):
         bonus_info = self.bonus_service.check_bonus_info()
-        if config.USE_ITEM_WHEN_FAILED and len(config.USE_ITEM_WHEN_FAILED) > 0 and (not config.MAX_GET_STAR_RANK or bonus_info.get("star_rank", 0) < config.MAX_GET_STAR_RANK):
+        if config.BONUS_GAME_USE_ITEM_WHEN_FAILED and len(config.BONUS_GAME_USE_ITEM_WHEN_FAILED) > 0 and (not config.BONUS_GAME_MAX_GET_STAR_RANK or bonus_info.get("star_rank", 0) < config.BONUS_GAME_MAX_GET_STAR_RANK):
             self.scene_manager.currentScene.buttons["use-item"].click()
         else:
-            if config.FAILED_AND_NO_ITEM_OR_OVER_MAX_STAR_RANK == "close":
+            if config.BONUS_GAME_WHEN_FAILED_END == "close":
                 print("[INFO] 關閉遊戲")
                 self.stop()
                 self.game.close_app()
-            elif config.FAILED_AND_NO_ITEM_OR_OVER_MAX_STAR_RANK == "exit":
+            elif config.BONUS_GAME_WHEN_FAILED_END == "exit":
                 self.scene_manager.currentScene.buttons["end"].click()
             else:
                 pass
@@ -52,7 +52,7 @@ class BonusGameStarRankMode(ActionBase):
     @once("result_bonus-failed_use-item-dialog")
     async def handle_result_bonus_failed_use_item_dialog(self):
         use_item = False
-        for use_item in config.USE_ITEM_WHEN_FAILED:
+        for use_item in config.BONUS_GAME_USE_ITEM_WHEN_FAILED:
             print(f"[INFO] 尋找: {use_item}")
             click_item_result = await self.bonus_service.click_bonus_item(use_item)
             await asyncio.sleep(.5)
@@ -68,15 +68,15 @@ class BonusGameStarRankMode(ActionBase):
         if not use_item:
             print("[INFO] 沒有可使用道具")
 
-            # 沒有可使用道具時，退回洗GEM模式
-            config.BONUS_GAME_TARGET = "gem" # 洗GEM模式
+            # 沒有可使用道具時，退回基本模式
+            config.BONUS_GAME_TARGET = "basic" # 基本模式
             config.BONUS_GAME_TARGET_ITEMS = ["green-tea", "gem"]
 
-            if config.FAILED_AND_NO_ITEM_OR_OVER_MAX_STAR_RANK == "close":
+            if config.BONUS_GAME_WHEN_FAILED_END == "close":
                 print("[INFO] 關閉遊戲")
                 self.stop()
                 self.game.close_app()
-            elif config.FAILED_AND_NO_ITEM_OR_OVER_MAX_STAR_RANK == "exit":
+            elif config.BONUS_GAME_WHEN_FAILED_END == "exit":
                 self.scene_manager.currentScene.buttons["end"].click()
             else:
                 pass

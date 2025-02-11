@@ -3,7 +3,7 @@ from libs.classes.action_base import ActionBase, once, loop
 from services.bonus_service import BonusService
 import asyncio
 
-class BonusGameGemCollectMode(ActionBase):
+class BonusGameBasicMode(ActionBase):
     bonus_service: BonusService
 
     bonus_get_failed_count = 0

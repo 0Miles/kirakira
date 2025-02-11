@@ -45,7 +45,6 @@ class BeingASandbag(ActionBase):
     async def handle_fighting_surrender_dialog(self):
         self.scene_manager.currentScene.buttons["ok"].click()
         self.stop()
-        self.game.close_app()
         await asyncio.sleep(1)
 
     @once("error")

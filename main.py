@@ -48,6 +48,10 @@ async def main():
             await puppeteer.start_action("GoToDiethelm")
             if (config.SCRIPT_MODE == "being_a_sandbag"):
                 await puppeteer.start_action("BeingASandbag")
+                if config.AUTO_SANDBAG_END == "close":
+                    game.close_app()
+                elif config.AUTO_SANDBAG_END == "bonus":
+                    await puppeteer.start_action("BonusGameBasicMode")
             elif (config.SCRIPT_MODE == "find_sandbag"):
                 await puppeteer.start_action("FindSandbag")
                 find_sandbag: 'FindSandbag' = puppeteer.get_action("FindSandbag")
@@ -58,8 +62,8 @@ async def main():
                     print("[INFO] 關閉遊戲，等待30分鐘後再開")
                     await asyncio.sleep(1800)
                 else:
-                    if config.BONUS_GAME_TARGET == "gem":
-                        await puppeteer.start_action("BonusGameGemCollectMode")
+                    if config.BONUS_GAME_TARGET == "basic":
+                        await puppeteer.start_action("BonusGameBasicMode")
                     elif config.BONUS_GAME_TARGET == "star_rank":
                         await puppeteer.start_action("BonusGameStarRankMode")
         except Exception as e:
