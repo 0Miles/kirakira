@@ -18,8 +18,6 @@ class BonusGameStarRankMode(ActionBase):
     async def handle_result_bonus_select(self):
         bonus_info = self.bonus_service.check_bonus_info()
         star_rank = bonus_info.get("star_rank", self.bonus_service.prev_star_rank)
-        
-        current_bonus = bonus_info.get("current_bonus", "")
 
         if star_rank < 70:
             print(f"[INFO] star_rank < 70: {star_rank}")
@@ -27,41 +25,14 @@ class BonusGameStarRankMode(ActionBase):
             self.stop()
             self.game.close_app()
             return
-
-        target_items = []
-        
-        if isinstance(config.BONUS_GAME_TARGET_ITEMS, dict):
-            for rank_threshold in sorted(config.BONUS_GAME_TARGET_ITEMS.keys()):
-                if star_rank >= rank_threshold:
-                    target_items = config.BONUS_GAME_TARGET_ITEMS.get(rank_threshold, [])
-        else:
-            target_items = config.BONUS_GAME_TARGET_ITEMS if config.BONUS_GAME_TARGET_ITEMS else []
-
-        print(f"[INFO] 目前星等: {star_rank}")
-        print(f"[INFO] 目前獎勵: {current_bonus}, 接下來的獎勵: {bonus_info.get('next_bonuses', [])}")
-        print(f"[INFO] 目標獎勵: {target_items}")
-
-        # 檢查 current_bonus 是否存在於目標獎勵中
-        if current_bonus and any(target_item for target_item in target_items if target_item in current_bonus):
-            self.scene_manager.currentScene.buttons["get"].click()
-            await asyncio.sleep(1)
-        else:
-            self.scene_manager.currentScene.buttons["next"].click()
+    
+        await self.bonus_service.handle_bonus_select(bonus_info)
         await asyncio.sleep(1)
 
     @loop("result_bonus-highlow")
     async def handle_result_bonus_highlow(self):
-        bonus_info = self.bonus_service.check_bonus_info()
-
-        target_num = bonus_info.get("target_num")
-        print(f"[INFO] 目標數字: {target_num}")
-        if target_num > 7:
-            print(f"[INFO] 選擇 low")
-            self.scene_manager.currentScene.buttons["low"].click()
-        else:
-            print(f"[INFO] 選擇 high")
-            self.scene_manager.currentScene.buttons["high"].click()
-        await asyncio.sleep(1)
+        await self.bonus_service.handle_highlow_choice()
+        await asyncio.sleep(3)
 
     @loop("result_bonus-failed")
     async def handle_result_bonus_failed(self):
@@ -113,6 +84,7 @@ class BonusGameStarRankMode(ActionBase):
 
     @once("error")
     async def handle_error(self):
+        """處理錯誤並關閉遊戲"""
         print("[INFO] 出現錯誤畫面，關閉遊戲")
         self.stop()
         self.game.close_app()

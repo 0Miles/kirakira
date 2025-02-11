@@ -31,7 +31,6 @@ class FindSandbag(ActionBase):
             await asyncio.sleep(.5)
         else:
             self.scene_manager.extra_info["green-tea-not-enough"] = True
-            self.scene_manager.currentScene.buttons["close"].click()
             self.stop()
         self.scene_manager.currentScene.buttons["close"].click()
         await asyncio.sleep(1)

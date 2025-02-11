@@ -42,10 +42,10 @@ async def main():
                 await puppeteer.start_action("BeingASandbag")
             elif (config.SCRIPT_MODE == "find_sandbag"):
                 await puppeteer.start_action("FindSandbag")
-                if puppeteer.scene_manager.extra_info.get("green-tea-not-enough", False) and not puppeteer.scene_manager.extra_info.get("ap-not-enough", False):
+                if scene_manager.extra_info.get("green-tea-not-enough", False) and not scene_manager.extra_info.get("ap-not-enough", False):
                     game.close_app()
-                    puppeteer.scene_manager.extra_info["green-tea-not-enough"] = False
-                    puppeteer.scene_manager.extra_info["ap-not-enough"] = False
+                    scene_manager.extra_info["green-tea-not-enough"] = False
+                    scene_manager.extra_info["ap-not-enough"] = False
                     print("[INFO] 關閉遊戲，等待30分鐘後再開")
                     await asyncio.sleep(1800)
                 else:

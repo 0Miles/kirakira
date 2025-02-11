@@ -1,4 +1,5 @@
 import asyncio
+import config
 from libs.classes.service_base import ServiceBase
 
 class BonusService(ServiceBase):
@@ -134,7 +135,44 @@ class BonusService(ServiceBase):
 
         return {
             "star_rank": safe_int(star_rank, self.prev_star_rank),
-            "target_num": safe_int(target_num, 12),  # 預設值為 12
+            "target_num": safe_int(target_num, 12),
             "current_bonus": current_bonus,
             "next_bonuses": next_bonuses
         }
+
+    async def handle_highlow_choice(self):
+        """處理 high-low 的選擇"""
+        bonus_info = self.check_bonus_info()
+        target_num = bonus_info.get("target_num")
+        print(f"[INFO] 目標數字: {target_num}")
+        
+        if target_num > 7:
+            print(f"[INFO] 選擇 low")
+            self.scene_manager.currentScene.buttons["low"].click()
+        else:
+            print(f"[INFO] 選擇 high")
+            self.scene_manager.currentScene.buttons["high"].click()
+
+    async def handle_bonus_select(self, info = None):
+        """處理獎勵選擇"""
+        bonus_info = info if info else self.check_bonus_info()
+        star_rank = bonus_info.get("star_rank", self.prev_star_rank)
+        current_bonus = bonus_info.get("current_bonus", "")
+
+        target_items = []
+        
+        if isinstance(config.BONUS_GAME_TARGET_ITEMS, dict):
+            for rank_threshold in sorted(config.BONUS_GAME_TARGET_ITEMS.keys()):
+                if star_rank >= rank_threshold:
+                    target_items = config.BONUS_GAME_TARGET_ITEMS.get(rank_threshold, [])
+        else:
+            target_items = config.BONUS_GAME_TARGET_ITEMS if config.BONUS_GAME_TARGET_ITEMS else []
+
+        print(f"[INFO] 目前星等: {star_rank}")
+        print(f"[INFO] 目前獎勵: {current_bonus}, 接下來的獎勵: {bonus_info.get('next_bonuses', [])}")
+        print(f"[INFO] 目標獎勵: {target_items}")
+
+        if current_bonus and any(target_item for target_item in target_items if target_item in current_bonus):
+            self.scene_manager.currentScene.buttons["get"].click()
+        else:
+            self.scene_manager.currentScene.buttons["next"].click()

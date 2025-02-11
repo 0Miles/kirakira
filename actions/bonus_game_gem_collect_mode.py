@@ -16,25 +16,22 @@ class BonusGameGemCollectMode(ActionBase):
     @loop("result_bonus-select")
     async def handle_result_bonus_select(self):
         bonus_info = self.bonus_service.check_bonus_info()
-        current_bonus = bonus_info.get("current_bonus")
-        if current_bonus in config.BONUS_GAME_TARGET_ITEMS:
-            self.scene_manager.currentScene.buttons["get"].click()
-            await asyncio.sleep(1)
-        else:
-            self.scene_manager.currentScene.buttons["next"].click()
+        star_rank = bonus_info.get("star_rank", self.bonus_service.prev_star_rank)
+
+        if star_rank < 70:
+            print(f"[INFO] star_rank < 70: {star_rank}")
+            # 戰敗的場合，直接關閉遊戲
+            self.stop()
+            self.game.close_app()
+            return
+    
+        await self.bonus_service.handle_bonus_select(bonus_info)
+        await asyncio.sleep(1)
 
     @loop("result_bonus-highlow")
     async def handle_result_bonus_highlow(self):
-        bonus_info = self.bonus_service.check_bonus_info()
-        target_num = bonus_info.get("target_num")
-        print(f"[INFO] 目標數字: {target_num}")
-        if target_num > 7:
-            print(f"[INFO] 選擇 low")
-            self.scene_manager.currentScene.buttons["low"].click()
-        else:
-            print(f"[INFO] 選擇 high")
-            self.scene_manager.currentScene.buttons["high"].click()
-        await asyncio.sleep(1)
+        await self.bonus_service.handle_highlow_choice()
+        await asyncio.sleep(3)
 
     @once("result_bonus-failed")
     async def handle_result_bonus_failed(self):
@@ -47,6 +44,7 @@ class BonusGameGemCollectMode(ActionBase):
 
     @once("error")
     async def handle_error(self):
+        """處理錯誤並關閉遊戲"""
         print("[INFO] 出現錯誤畫面，關閉遊戲")
         self.stop()
         self.game.close_app()
