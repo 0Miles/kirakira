@@ -7,14 +7,16 @@ from services.room_service import RoomService
 class FindSandbag(ActionBase):
     room_service: RoomService
 
-    fight_start_time = None  # 新增時間戳記屬性
+    fight_start_time = None
+    ap_not_enough = False
+    green_tea_not_enough = False
 
     async def on_start(self):
         self.fight_start_time = None
 
     @once("matching_diethelm")
     async def handle_matching_diethelm(self):
-        if not self.scene_manager.extra_info.get("ap-not-enough", False):
+        if not self.ap_not_enough:
             await self.scene_manager.currentScene.buttons["create"].wait_click()
             await asyncio.sleep(1)
         else:
@@ -23,15 +25,16 @@ class FindSandbag(ActionBase):
 
     @once("matching_diethelm_use-item-dialog")
     async def handle_matching_diethelm_use_item_dialog(self):
-        has_green_tea = self.scene_manager.currentScene.buttons["green-tea"].click()
-        await asyncio.sleep(.5)
-        if has_green_tea:
-            self.scene_manager.currentScene.buttons["use"].click()
-            self.scene_manager.extra_info["ap-not-enough"] = False
+        if self.ap_not_enough:
+            has_green_tea = self.scene_manager.currentScene.buttons["green-tea"].click()
             await asyncio.sleep(.5)
-        else:
-            self.scene_manager.extra_info["green-tea-not-enough"] = True
-            self.stop()
+            if has_green_tea:
+                self.scene_manager.currentScene.buttons["use"].click()
+                self.ap_not_enough = False
+                await asyncio.sleep(.5)
+            else:
+                self.green_tea_not_enough = True
+                self.stop()
         self.scene_manager.currentScene.buttons["close"].click()
         await asyncio.sleep(1)
 
@@ -63,7 +66,7 @@ class FindSandbag(ActionBase):
     @once("matching_diethelm_ap-not-enough-dialog")
     async def handle_matching_diethelm_ap_not_enough_dialog(self):
         self.scene_manager.currentScene.buttons["ok"].click()
-        self.scene_manager.extra_info["ap-not-enough"] = True
+        self.ap_not_enough = True
         await asyncio.sleep(1)
 
     @loop("fighting")

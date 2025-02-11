@@ -21,13 +21,12 @@ SM_CXPADDEDBORDER = 92  # Windows Vista/7 之後額外的邊框寬度
 
 class NONCLIENTMETRICS(Structure):
     _fields_ = [
-        ('cbSize', DWORD),
-        ('iBorderWidth', c_int),
-        ('iScrollWidth', c_int),
-        ('iScrollHeight', c_int),
-        ('iCaptionWidth', c_int),
-        ('iCaptionHeight', c_int),
-        # ... 其他欄位省略 ...
+        ("cbSize", DWORD),
+        ("iBorderWidth", c_int),
+        ("iScrollWidth", c_int),
+        ("iScrollHeight", c_int),
+        ("iCaptionWidth", c_int),
+        ("iCaptionHeight", c_int),
     ]
 
 PROCESS_PER_MONITOR_DPI_AWARE = 2
@@ -47,9 +46,9 @@ class AppControl:
             windll.user32.SetProcessDPIAware()
     
     def is_app_running(self):
-        for process in psutil.process_iter(attrs=['pid', 'name']):
+        for process in psutil.process_iter(attrs=["pid", "name"]):
             for name in self.app_names:
-                if name.lower() in process.info['name'].lower():
+                if name.lower() in process.info["name"].lower():
                     return True
         return False
 
@@ -71,10 +70,10 @@ class AppControl:
         if not self.is_app_running():
             print(f"{self.app_names} 未在運行。")
         found = False
-        for process in psutil.process_iter(attrs=['pid', 'name']):
+        for process in psutil.process_iter(attrs=["pid", "name"]):
             for name in self.app_names:
-                if name.lower() in process.info['name'].lower():
-                    os.kill(process.info['pid'], 9)
+                if name.lower() in process.info["name"].lower():
+                    os.kill(process.info["pid"], 9)
                     print(f"{name} 已關閉。")
                     found = True
                     break
@@ -101,10 +100,10 @@ class AppControl:
             if window:
                 win = window[0]
                 return {
-                    'x': win.left,
-                    'y': win.top,
-                    'width': win.width,
-                    'height': win.height
+                    "x": win.left,
+                    "y": win.top,
+                    "width": win.width,
+                    "height": win.height
                 }
         return None
     
@@ -138,9 +137,9 @@ class AppControl:
             total_frame_y = frame_y + padded_border
 
             return {
-                'caption_height': caption_height,
-                'frame_width': total_frame_x,
-                'frame_height': total_frame_y
+                "caption_height": caption_height,
+                "frame_width": total_frame_x,
+                "frame_height": total_frame_y
             }
         except Exception as e:
             print(f"[ERROR] 無法獲取系統視窗框架尺寸: {e}")
@@ -170,10 +169,10 @@ class AppControl:
                     "window_rect": (window_left, window_top, window_right - window_left, window_bottom - window_top),
                     "client_rect": (client_left, client_top, client_right, client_bottom),
                     "dpi_scale": dpi_scale,
-                    "title_bar_height": frame_sizes['caption_height'],
-                    "frame_left": frame_sizes['frame_width'],
-                    "frame_right": frame_sizes['frame_width'],
-                    "frame_bottom": frame_sizes['frame_height']
+                    "title_bar_height": frame_sizes["caption_height"],
+                    "frame_left": frame_sizes["frame_width"],
+                    "frame_right": frame_sizes["frame_width"],
+                    "frame_bottom": frame_sizes["frame_height"]
                 }
 
             except Exception as e:
@@ -195,9 +194,9 @@ class AppControl:
                 if not window_info:
                     return None
                 
-                width = window_info['window_rect'][2]
-                height = window_info['window_rect'][3]
-                dpi_scale = window_info['dpi_scale']
+                width = window_info["window_rect"][2]
+                height = window_info["window_rect"][3]
+                dpi_scale = window_info["dpi_scale"]
                 
                 # 創建設備上下文（DC）
                 hwnd_dc = win32gui.GetWindowDC(hwnd)

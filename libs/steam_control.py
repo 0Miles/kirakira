@@ -8,8 +8,8 @@ class SteamControl:
         self.default_game_id = default_game_id
     
     def is_steam_running(self):
-        for process in psutil.process_iter(attrs=['pid', 'name']):
-            if "steam.exe" in process.info['name'].lower():
+        for process in psutil.process_iter(attrs=["pid", "name"]):
+            if "steam.exe" in process.info["name"].lower():
                 return True
         return False
 

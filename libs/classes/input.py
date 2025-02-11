@@ -9,12 +9,12 @@ if TYPE_CHECKING:
 class Input:
     def __init__(self, input_id: str, label_template: Union[str, List[str]], 
                  offset: Tuple[int, int], input_template: Union[str, List[str]], 
-                 position: str, scene_manager: 'SceneManager'):
+                 position: str, scene_manager: "SceneManager"):
         self.input_id = input_id
         self.label_template = label_template if isinstance(label_template, list) else [label_template]
         self.offset = offset
         self.input_template = input_template if isinstance(input_template, list) else [input_template]
-        self.position = position  # 指定Input相對於標籤的位置 ('top', 'bottom', 'left', 'right')
+        self.position = position  # 指定Input相對於標籤的位置 ("top", "bottom", "left", "right")
         self.scene_manager = scene_manager
 
     def find_input(self) -> Tuple[int, int, int, int]:
@@ -136,7 +136,7 @@ class Checkbox(Input):
     def __init__(self, input_id: str, label_template: Union[str, List[str]], 
                  offset: Tuple[int, int], input_template: Union[str, List[str]], 
                  position: str, checked_template: Union[str, List[str]], 
-                 scene_manager: 'SceneManager'):
+                 scene_manager: "SceneManager"):
         super().__init__(input_id, label_template, offset, input_template, position, scene_manager)
         self.checked_template = checked_template if isinstance(checked_template, list) else [checked_template]
     

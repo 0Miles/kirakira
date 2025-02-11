@@ -1,3 +1,4 @@
 SCENES_DIR = "scenes"
 TEMPLATES_DIR = "templates"
-SERVICE_DIR = "services"
+SERVICES_DIR = "services"
+ACTIONS_DIR = "actions"

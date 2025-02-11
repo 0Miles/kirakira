@@ -60,7 +60,6 @@ async def main():
                         await puppeteer.start_action("BonusGameStarRankMode")
         except Exception as e:
             print(f"[ERROR] 發生錯誤: {e}")
-            puppeteer.logger.error(f"發生錯誤: {e}")
             # 關閉遊戲等待重啟，避免腳本卡住
             try:
                 game.close_app()

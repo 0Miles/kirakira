@@ -7,7 +7,7 @@ logger = get_logger()
 logger.setLevel(logging.ERROR)
 
 class OCRProcessor:
-    def __init__(self, use_angle_cls=False, lang='ch'):
+    def __init__(self, use_angle_cls=False, lang="ch"):
         """
         初始化 OCR 處理器。
         :param use_angle_cls: 是否使用文字方向分類

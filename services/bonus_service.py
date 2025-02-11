@@ -19,7 +19,7 @@ class BonusService(ServiceBase):
             item_name_region = self.scene_manager.get_safe_client_region(15, 65, 215, 50)
             screenshot = self.scene_manager.game.capture_screen()
             item_name_result = self.scene_manager.ocr_processor.process_screenshot(screenshot, item_name_region)
-            if item_name_result and item_name_result[0]['text'] == item_name:
+            if item_name_result and item_name_result[0]["text"] == item_name:
                 return True
         return False
 
@@ -36,7 +36,7 @@ class BonusService(ServiceBase):
         def safe_int(value, default=0):
             try:
                 # 移除非數字字符
-                num_str = ''.join(c for c in str(value) if c.isdigit())
+                num_str = "".join(c for c in str(value) if c.isdigit())
                 return int(num_str) if num_str else default
             except (ValueError, TypeError):
                 return default
@@ -45,7 +45,7 @@ class BonusService(ServiceBase):
         rank_x, rank_y, rank_w, rank_h = self.scene_manager.get_safe_client_region(625, 0, 100, 70)
         star_rank_region = (rank_x, rank_y, rank_w, rank_h)
         star_rank_ocr_result = self.scene_manager.ocr_processor.process_screenshot(screenshot, star_rank_region)
-        star_rank = star_rank_ocr_result[0]['text'] if star_rank_ocr_result else f"{self.prev_star_rank + 1}"
+        star_rank = star_rank_ocr_result[0]["text"] if star_rank_ocr_result else f"{self.prev_star_rank + 1}"
 
         # 確保獎勵等級不會因為OCR辨識錯誤倒退
         if safe_int(star_rank) < self.prev_star_rank:
@@ -112,7 +112,7 @@ class BonusService(ServiceBase):
             card_name_ocr_range = self.scene_manager.get_safe_client_region(405, 418, 155, 30)
             card_name_ocr_result = self.scene_manager.ocr_processor.process_screenshot(screenshot, card_name_ocr_range)
             if card_name_ocr_result:
-                current_bonus = card_name_ocr_result[0]['text']
+                current_bonus = card_name_ocr_result[0]["text"]
 
 
         # 調整三個下一個獎勵區域
@@ -130,7 +130,7 @@ class BonusService(ServiceBase):
                 card_name_ocr_range = self.scene_manager.get_safe_client_region(region[0] + 30, region[1], 70, 26)
                 card_name_ocr_result = self.scene_manager.ocr_processor.process_screenshot(screenshot, card_name_ocr_range)
                 if card_name_ocr_result:
-                    bonus = card_name_ocr_result[0]['text']
+                    bonus = card_name_ocr_result[0]["text"]
             next_bonuses.append(bonus)
 
         return {

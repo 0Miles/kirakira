@@ -1,7 +1,5 @@
 import asyncio
-from abc import ABC, abstractmethod
 from typing import Optional, Dict, Callable, Any, List, Union, TypeVar, cast
-import logging
 from typing import TYPE_CHECKING
 import inspect
 
@@ -52,14 +50,13 @@ def once(scene_id: str, wait_for: Union[str, List[str], None] = None, timeout: i
         return cast(T, wrapper)
     return decorator
 
-class ActionBase(ABC):
+class ActionBase():
     def __init__(self, steam: 'SteamControl', game: 'AppControl', scene_manager: 'SceneManager'):
         self.steam = steam
         self.game = game
         self.scene_manager = scene_manager
         self._running = False
         self._task: Optional[asyncio.Task] = None
-        self.logger = logging.getLogger(self.__class__.__name__)
         self.scene_handlers: Dict[str, Callable] = {}
         self._scene_ids: List[str] = []
 
@@ -81,18 +78,11 @@ class ActionBase(ABC):
                 if scene_id not in self._scene_ids:
                     self._scene_ids.append(scene_id)
 
-    async def on_unknown_scene(self):
-        await asyncio.sleep(.5)
-
-    async def on_unhandled_scene(self):
-        self.stop()
-        await asyncio.sleep(1)
-
     async def process(self):
         if not await self.scene_manager.refresh():
             self._refresh_failed_count += 1
             if self._refresh_failed_count > 10:
-                self.logger.error("[Error] 無法更新場景，停止 Action")
+                print("[Error] 無法更新場景，停止 Action")
                 raise Exception("無法更新場景")
             return
         else:
@@ -108,7 +98,7 @@ class ActionBase(ABC):
                 self._waiting_for = None
             elif asyncio.get_event_loop().time() - self._waiting_start_timestamp > self._waiting_timeout:
                 self._waiting_for = None
-                self.logger.warning(f"等待超時: {self._waiting_timeout}s")
+                print(f"[WARNING] 等待超時: {self._waiting_timeout}s")
             else:
                 await asyncio.sleep(.5)
                 return
@@ -118,33 +108,43 @@ class ActionBase(ABC):
         
         if handler:
             print(f"[INFO] 已找到 {scene_id} 對應的 Handler")
-            print(f"[INFO] 執行 {scene_id} Handler")
             self._again_flag = False
             await handler()
         else:
-            print(f"[INFO] 出現此 Action 未處理的場景: {scene_id}")
+            print(f"[INFO] 出現未註冊的場景: {scene_id}")
             await self.on_unhandled_scene()
 
     async def on_start(self):
         """
         生命週期方法：腳本開始執行時調用
-        子類可以覆寫此方法以添加自定義的啟動邏輯
         """
         pass
 
     async def on_end(self):
         """
         生命週期方法：腳本結束執行時調用
-        子類可以覆寫此方法以添加自定義的清理邏輯
         """
         pass
+    
+    async def on_unknown_scene(self):
+        """
+        生命週期方法：當無法識別當前場景時調用
+        """
+        await asyncio.sleep(.5)
+
+    async def on_unhandled_scene(self):
+        """
+        生命週期方法：當前場景未註冊處理器時調用
+        """
+        self.stop()
+        await asyncio.sleep(1)
 
     def check_game_available(self):
         """
         檢查遊戲是否可用
         """
         if not self.game.is_app_running():
-            self.logger.error("遊戲未啟動或不在活動狀態")
+            print("[WARNING] 遊戲未啟動或不在活動狀態")
             self.stop()
             return False
 
@@ -153,7 +153,7 @@ class ActionBase(ABC):
         在非同步循環中執行腳本流程
         """
         if self._running:
-            self.logger.warning("Script is already running")
+            print(f"[WARNING] {self.__class__.__name__} 已在執行中")
             return
 
         self._running = True
@@ -166,7 +166,7 @@ class ActionBase(ABC):
                 await asyncio.sleep(0.1)
                 self.check_game_available()
         except Exception as e:
-            self.logger.error(f"發生錯誤, Action:{self.__class__.__name__}, Scene:{self.scene_manager.currentScene.scene_id if self.scene_manager.currentScene else None}: {e}")
+            print(f"[ERROR] 發生錯誤, Action:{self.__class__.__name__}, Scene:{self.scene_manager.currentScene.scene_id if self.scene_manager.currentScene else None}: {e}")
             self._running = False
             raise
         finally:
@@ -178,7 +178,7 @@ class ActionBase(ABC):
         啟動腳本的非同步執行
         """
         if self._task and not self._task.done():
-            self.logger.warning("Script task already exists and is running")
+            print(f"[WARNING] {self.__class__.__name__} 已啟動")
             return
 
         self._task = asyncio.create_task(self.run())
@@ -187,6 +187,7 @@ class ActionBase(ABC):
         """
         停止腳本執行
         """
+        print(f"[INFO] 中止動作: {self.__class__.__name__}")
         self._running = False
         if self._task:
             self._task.cancel()

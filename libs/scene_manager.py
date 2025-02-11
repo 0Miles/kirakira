@@ -18,7 +18,6 @@ class SceneManager:
         self.ocr_processor = OCRProcessor()
         self.scenes: Dict[str, 'Scene'] = self.load_scenes()
         self.game = game
-        self.extra_info = {}
 
         self._template_origin_client_size = template_origin_client_size  # 設定模板原始尺寸
         self._scale_ratio = 1
@@ -135,16 +134,16 @@ class SceneManager:
             for filename in os.listdir(SCENES_DIR):
                 if filename.endswith(".json"):
                     config_path = os.path.join(SCENES_DIR, filename)
-                    with open(config_path, 'r', encoding='utf-8') as f:
+                    with open(config_path, "r", encoding="utf-8") as f:
                         config = json.load(f)
-                    scene_id = config.get('scene_id', filename[:-5])
+                    scene_id = config.get("scene_id", filename[:-5])
                     if not scenes.get(scene_id):                        
                         scene_instance = Scene(
                             scene_manager=self,
                             scene_id=scene_id,
-                            template=config.get('template', []),
-                            button_configs=config.get('button_configs', []),
-                            input_configs=config.get('input_configs', [])
+                            template=config.get("template", []),
+                            button_configs=config.get("button_configs", []),
+                            input_configs=config.get("input_configs", [])
                         )
                         scenes[scene_id] = scene_instance
         return scenes

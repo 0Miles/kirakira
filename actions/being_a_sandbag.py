@@ -8,7 +8,6 @@ class BeingASandbag(ActionBase):
 
     @loop("matching_diethelm")
     async def handle_matching_diethelm(self):
-        # 使用注入的服務
         room_list = self.room_service.check_room_list()
         if room_list:
             target_room = next(
@@ -17,8 +16,8 @@ class BeingASandbag(ActionBase):
             )
             if target_room:
                 await self.room_service.join_room(
-                    target_room['position'], 
-                    target_room['owner']
+                    target_room["position"], 
+                    target_room["owner"]
                 )
                 await asyncio.sleep(.5)
     
