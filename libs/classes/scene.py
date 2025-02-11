@@ -30,8 +30,9 @@ class Scene:
         for button_config in self.button_configs:
             self.buttons[button_config["id"]] = Button(
                 button_config["id"], 
-                button_config["template"], 
                 scene_manager,
+                button_config.get("template", None),
+                button_config.get("position", None),
                 button_config.get("region", None),
                 button_config.get("color", False),
                 button_config.get("threshold", 0.9)

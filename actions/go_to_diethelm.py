@@ -22,8 +22,7 @@ class GoToDiethelm(ActionBase):
 
     @loop("matching")
     async def handle_matching(self):
-        button_x, button_y = self.scene_manager.get_scaled_position(400,160)
-        self.scene_manager.game.click(button_x, button_y)
+        self.scene_manager.currentScene.buttons["diethelm"].click()
         await asyncio.sleep(1)
 
     @once("matching_diethelm")

@@ -16,10 +16,7 @@
         },
         {
             "id": "get",
-            "template": [
-                "scenes/result/bonus-select/button-get.png",
-                "scenes/result/bonus-select/button-get-hover.png"
-            ]
+            "position": [565, 265]
         }
     ]
 }

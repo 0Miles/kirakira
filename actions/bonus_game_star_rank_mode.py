@@ -43,8 +43,7 @@ class BonusGameStarRankMode(ActionBase):
 
         # 檢查 current_bonus 是否存在於目標獎勵中
         if current_bonus and any(target_item for target_item in target_items if target_item in current_bonus):
-            button_x, button_y = self.scene_manager.get_scaled_position(565,265)
-            self.scene_manager.game.click(button_x, button_y)
+            self.scene_manager.currentScene.buttons["get"].click()
             await asyncio.sleep(1)
         else:
             self.scene_manager.currentScene.buttons["next"].click()
@@ -75,8 +74,7 @@ class BonusGameStarRankMode(ActionBase):
                 self.stop()
                 self.game.close_app()
             elif config.FAILED_AND_NO_ITEM_OR_OVER_MAX_STAR_RANK == "exit":
-                exit_bonus_game_x, exit_bonus_game_y = self.scene_manager.get_scaled_position(562,240)
-                self.game.click(exit_bonus_game_x, exit_bonus_game_y)
+                self.scene_manager.currentScene.buttons["end"].click()
             else:
                 pass
 
@@ -108,8 +106,7 @@ class BonusGameStarRankMode(ActionBase):
                 self.stop()
                 self.game.close_app()
             elif config.FAILED_AND_NO_ITEM_OR_OVER_MAX_STAR_RANK == "exit":
-                exit_bonus_game_x, exit_bonus_game_y = self.scene_manager.get_scaled_position(562,240)
-                self.game.click(exit_bonus_game_x, exit_bonus_game_y)
+                self.scene_manager.currentScene.buttons["end"].click()
             else:
                 pass
         await asyncio.sleep(1)

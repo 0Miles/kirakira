@@ -13,10 +13,7 @@
     "button_configs": [
         {
             "id": "end",
-            "template": [
-                "scenes/result/bonus-failed/button-end.png",
-                "scenes/result/bonus-failed/button-end-hover.png"
-            ]
+            "position": [565, 240]
         },
         {
             "id": "use-item",

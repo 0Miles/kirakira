@@ -5,7 +5,7 @@ import asyncio
 
 class BonusGameGemCollectMode(ActionBase):
     bonus_service: BonusService
-    
+
     bonus_get_failed_count = 0
 
     @loop("result")
@@ -18,8 +18,7 @@ class BonusGameGemCollectMode(ActionBase):
         bonus_info = self.bonus_service.check_bonus_info()
         current_bonus = bonus_info.get("current_bonus")
         if current_bonus in config.BONUS_GAME_TARGET_ITEMS:
-            button_x, button_y = self.scene_manager.get_scaled_position(565,265)
-            self.scene_manager.game.click(button_x, button_y)
+            self.scene_manager.currentScene.buttons["get"].click()
             await asyncio.sleep(1)
         else:
             self.scene_manager.currentScene.buttons["next"].click()

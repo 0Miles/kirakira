@@ -8,11 +8,7 @@
     "button_configs": [
         {
             "id": "diethelm",
-            "template": [
-                "scenes/matching/button-diethelm.png",
-                "scenes/matching/button-diethelm-hover.png"
-            ],
-            "region": [230, 62, 215, 76]
+            "position": [400, 160]
         }
     ]
 }
