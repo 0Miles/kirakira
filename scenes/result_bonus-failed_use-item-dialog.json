@@ -21,6 +21,13 @@
                 "scenes/result/bonus-failed/use-item-dialog/button-use.png",
                 "scenes/result/bonus-failed/use-item-dialog/button-use-hover.png"
             ]
+        },
+        {
+            "id": "end",
+            "position": [
+                565,
+                240
+            ]
         }
     ]
 }
