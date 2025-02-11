@@ -7,7 +7,7 @@ class RoomService(ServiceBase):
     def check_room_list(self):
         screenshot = self.scene_manager.game.capture_screen()
 
-        # 使用 get_safe_client_region 計算房間列表區域
+        # 房間列表區域
         x, y, w, h = self.scene_manager.get_safe_client_region(0, 65, 450, 420)
         region = (x, y, w, h)
 
@@ -79,7 +79,7 @@ class RoomService(ServiceBase):
         try:
             screenshot = self.scene_manager.game.capture_screen()
 
-            # 使用 get_safe_client_region 計算玩家資訊區域
+            # 玩家資訊區域
             x, y, w, h = self.scene_manager.get_safe_client_region(480, 35, 440, 350)
             region = (x, y, w, h)
             ocr_result = self.scene_manager.ocr_processor.process_screenshot(screenshot, region)
@@ -95,7 +95,7 @@ class RoomService(ServiceBase):
                 "win_draw_record": None, "win_rate": None
             }
 
-            # 獲取座標範圍的縮放版本
+            # 獲取座標範圍
             scaled_ranges = {
                 "p1_name": self.scene_manager.get_safe_client_region(590, 80, 100, 20),
                 "p1_bp": self.scene_manager.get_safe_client_region(590, 106, 100, 20),

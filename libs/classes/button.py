@@ -20,7 +20,7 @@ class Button:
             screenshot = self.scene_manager.game.capture_screen()
             
             target_match = None
-            target_position = self.scene_manager.get_scaled_position(*self.position) if self.position else None
+            target_position = self.scene_manager.get_safe_client_position(*self.position) if self.position else None
 
             if self.template is not None and len(self.template) > 0:
                 for template in self.template:

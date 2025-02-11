@@ -1,12 +1,13 @@
 import asyncio
+import inspect
 import os
 import json
 import importlib
 from typing import Dict, Optional, List
 
 from libs.app_control import AppControl
-from libs.image_processing import ImageProcessor
-from libs.ocr import OCRProcessor
+from libs.image_processor import ImageProcessor
+from libs.ocr_processor import OCRProcessor
 from libs.classes.scene import Scene
 from libs.constants import SCENES_DIR, TEMPLATES_DIR
 
@@ -25,7 +26,7 @@ class SceneManager:
         self._title_bar_height = title_bar_height
         self.check_window_size_info()
 
-    def get_scaled_position(self, x: int, y: int) -> tuple[int, int]:
+    def get_safe_client_position(self, x: int, y: int) -> tuple[int, int]:
         """
         根據當前視窗縮放比例計算實際座標
         Args:
@@ -39,23 +40,22 @@ class SceneManager:
         
         scaled_x = int(x * self._scale_ratio)
         scaled_y = int(y * self._scale_ratio)
+
+        scaled_title_height = int(self._title_bar_height * self._scale_ratio)
+        scaled_frame_left = int(self._frame_left * self._scale_ratio)
         
-        return (scaled_x, scaled_y)
+        return (scaled_x + scaled_frame_left, scaled_y + scaled_title_height)
 
     def get_safe_client_region(self, x: int, y: int, width: int, height: int) -> tuple[int, int, int, int]:
         if not self._scale_ratio:
             self.check_window_size_info()
 
         # 計算縮放後的座標和尺寸
-        scaled_x = int((x ) * self._scale_ratio)
-        scaled_y = int((y ) * self._scale_ratio)
+        scaled_x, scaled_y = self.get_safe_client_position(x, y)
         scaled_width = int(width * self._scale_ratio)
         scaled_height = int(height * self._scale_ratio)
-
-        scaled_title_height = int(self._title_bar_height * self._scale_ratio)
-        scaled_frame_left = int(self._frame_left * self._scale_ratio)
         
-        return (scaled_x + scaled_frame_left, scaled_y + scaled_title_height, scaled_width, scaled_height)
+        return (scaled_x, scaled_y, scaled_width, scaled_height)
 
     def check_window_size_info(self):
         """獲取當前視窗與模板比例"""
@@ -123,13 +123,15 @@ class SceneManager:
             # load scenes from Python files
             for filename in os.listdir(SCENES_DIR):
                 if filename.endswith(".py") and not filename.startswith("__"):
-                    module_name = f"scenes.{filename[:-3]}"
-                    module = importlib.import_module(module_name)
-                    class_name = filename[:-3].title().replace("-", "").replace("_", "")
-                    if hasattr(module, class_name):
-                        scene_class = getattr(module, class_name)
-                        scene_instance = scene_class(scene_manager=self)
-                        scenes[scene_instance.scene_id] = scene_instance
+                    module_name = filename[:-3]
+                    module = importlib.import_module(f"scenes.{module_name}")
+                    for name, obj in inspect.getmembers(module):
+                        if (inspect.isclass(obj) and 
+                            issubclass(obj, Scene) and 
+                            obj != Scene):
+                            scene_instance = obj(scene_manager=self)
+                            scenes[scene_instance.scene_id] = scene_instance
+
             # load scenes from JSON files
             for filename in os.listdir(SCENES_DIR):
                 if filename.endswith(".json"):

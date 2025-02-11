@@ -6,7 +6,6 @@ import inspect
 if TYPE_CHECKING:
     from libs.scene_manager import SceneManager
     from libs.app_control import AppControl
-    from libs.steam_control import SteamControl
 
 T = TypeVar('T', bound=Callable)
 
@@ -51,8 +50,7 @@ def once(scene_id: str, wait_for: Union[str, List[str], None] = None, timeout: i
     return decorator
 
 class ActionBase():
-    def __init__(self, steam: 'SteamControl', game: 'AppControl', scene_manager: 'SceneManager'):
-        self.steam = steam
+    def __init__(self, game: 'AppControl', scene_manager: 'SceneManager'):
         self.game = game
         self.scene_manager = scene_manager
         self._running = False

@@ -6,19 +6,17 @@ from typing import Dict, Type, Optional, Any
 from libs.classes.action_base import ActionBase
 from libs.classes.service_base import ServiceBase
 from libs.constants import ACTIONS_DIR, SERVICES_DIR
-from libs.steam_control import SteamControl
 from libs.app_control import AppControl
 from libs.scene_manager import SceneManager
 
 class Puppeteer:
-    def __init__(self, steam_control: SteamControl, app_control: AppControl, scene_manager: SceneManager = None):
+    def __init__(self, game: AppControl, scene_manager: SceneManager = None):
         self.actions: Dict[str, ActionBase] = {}
         self.services: Dict[str, Any] = {}
         
         # 初始化共享的控制器實例
-        self.steam_control = steam_control
-        self.app_control = app_control
-        self.scene_manager = scene_manager if scene_manager else SceneManager(app_control)
+        self.game = game
+        self.scene_manager = scene_manager if scene_manager else SceneManager(game)
 
     async def initialize(self) -> None:
         # 首先載入所有服務
@@ -78,8 +76,7 @@ class Puppeteer:
                             
                             # 創建動作實例並注入基本依賴
                             action_instance = obj(
-                                steam=self.steam_control,
-                                game=self.app_control,
+                                game=self.game,
                                 scene_manager=self.scene_manager
                             )
                             

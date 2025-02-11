@@ -31,7 +31,6 @@ class BonusService(ServiceBase):
     def check_bonus_info(self):
         screenshot = self.scene_manager.game.capture_screen()
 
-        # 使用 get_safe_client_region 處理所有區域
         # 安全地轉換字串為數字
         def safe_int(value, default=0):
             try:
