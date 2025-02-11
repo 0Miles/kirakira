@@ -263,8 +263,6 @@ class AppControl:
             windll.user32.SendNotifyMessageW(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, l_param)
             time.sleep(0.1)  # 短暫延遲確保訊息被處理
             windll.user32.SendNotifyMessageW(hwnd, win32con.WM_LBUTTONUP, 0, l_param)
-            
-            print(f"[INFO] 已向 {self.window_title} 發送點擊訊息 ({x}, {y})")
             return True
             
         except Exception as e:

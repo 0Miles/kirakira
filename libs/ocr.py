@@ -1,6 +1,10 @@
 import cv2
-import numpy as np
 from paddleocr import PaddleOCR
+
+from paddleocr.ppocr.utils.logging import get_logger
+import logging
+logger = get_logger()
+logger.setLevel(logging.ERROR)
 
 class OCRProcessor:
     def __init__(self, use_angle_cls=False, lang='ch'):

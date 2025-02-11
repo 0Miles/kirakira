@@ -36,7 +36,6 @@ class Input:
                 for x, y, w, h in label_matches:
                     label_region = screenshot[y:y+h, x:x+w]
                     ocr_result = self.scene_manager.ocr_processor.process_screenshot(label_region)
-                    print(ocr_result)
                     for item in ocr_result:
                         if (item.get("text") == template_ocr_text):
                             result_x, result_y, result_w, result_h = item.get("position")
