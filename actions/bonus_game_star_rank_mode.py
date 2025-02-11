@@ -19,7 +19,7 @@ class BonusGameStarRankMode(ActionBase):
         bonus_info = self.bonus_service.check_bonus_info()
         star_rank = bonus_info.get("star_rank", self.bonus_service.prev_star_rank)
 
-        if config.BONUS_GAME_MIN_STAR_RANK and star_rank < 70:
+        if star_rank < 70:
             print(f"[INFO] star_rank < 70: {star_rank}")
             # 戰敗的場合，直接關閉遊戲
             self.stop()
