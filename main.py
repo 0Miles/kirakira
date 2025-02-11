@@ -1,9 +1,13 @@
 import asyncio
+from typing import TYPE_CHECKING
 from libs.puppeteer import Puppeteer
 from libs.scene_manager import SceneManager
 from libs.steam_control import SteamControl
 from libs.app_control import AppControl
 import config
+
+if TYPE_CHECKING:
+    from actions.find_sandbag import FindSandbag
 
 async def main():
     steam = SteamControl(config.STEAM_GAME_ID)
@@ -42,10 +46,11 @@ async def main():
                 await puppeteer.start_action("BeingASandbag")
             elif (config.SCRIPT_MODE == "find_sandbag"):
                 await puppeteer.start_action("FindSandbag")
-                if scene_manager.extra_info.get("green-tea-not-enough", False) and not scene_manager.extra_info.get("ap-not-enough", False):
+                find_sandbag: 'FindSandbag' = puppeteer.get_action("FindSandbag")
+                if find_sandbag.green_tea_not_enough and find_sandbag.ap_not_enough:
                     game.close_app()
-                    scene_manager.extra_info["green-tea-not-enough"] = False
-                    scene_manager.extra_info["ap-not-enough"] = False
+                    find_sandbag.green_tea_not_enough = False
+                    find_sandbag.ap_not_enough = False
                     print("[INFO] 關閉遊戲，等待30分鐘後再開")
                     await asyncio.sleep(1800)
                 else:
