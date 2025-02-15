@@ -6,8 +6,6 @@ import asyncio
 class BonusGameBasicMode(ActionBase):
     bonus_service: BonusService
 
-    bonus_get_failed_count = 0
-
     @loop("result")
     async def handle_result(self):
         self.scene_manager.currentScene.buttons["ok"].click()

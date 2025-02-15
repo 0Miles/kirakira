@@ -63,7 +63,8 @@ class SceneManager:
         window_size_info = self.game.get_window_size_info()
         if not window_size_info:
             print("[WARNING] 無法獲取視窗資訊，使用預設比例 1")
-            return 1
+            self._scale_ratio = 1
+            return
 
         client_width = window_size_info["client_rect"][2]
         client_height = window_size_info["client_rect"][3]

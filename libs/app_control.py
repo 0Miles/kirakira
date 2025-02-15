@@ -119,6 +119,9 @@ class AppControl:
                 pointer(dpi_x),
                 pointer(dpi_y)
             )
+            if (dpi_x.value <= 0):
+                return 1.0
+            
             return dpi_x.value / 96.0
         except Exception:
             return 1.0  # 如果無法獲取 DPI，返回 1.0（無縮放）
