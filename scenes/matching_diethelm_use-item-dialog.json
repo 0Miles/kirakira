@@ -26,6 +26,11 @@
             "id": "green-tea",
             "template": ["scenes/use-item-dialog/button-green-tea.png"],
             "color": true
+        },
+        {
+            "id": "purple-tea",
+            "template": ["scenes/use-item-dialog/button-purple-tea.png"],
+            "color": true
         }
     ]
 }
