@@ -27,15 +27,22 @@ class FindSandbag(ActionBase):
     @once("matching_diethelm_use-item-dialog")
     async def handle_matching_diethelm_use_item_dialog(self):
         if self.ap_not_enough:
-            has_green_tea = self.scene_manager.currentScene.buttons["purple-tea"].click()
+            has_green_tea = self.scene_manager.currentScene.buttons["green-tea"].click()
             await asyncio.sleep(.5)
             if has_green_tea:
                 self.scene_manager.currentScene.buttons["use"].click()
                 self.ap_not_enough = False
                 await asyncio.sleep(.5)
             else:
-                self.green_tea_not_enough = True
-                self.stop()
+                has_purple_tea = self.scene_manager.currentScene.buttons["purple-tea"].click()
+                await asyncio.sleep(.5)
+                if has_purple_tea:
+                    self.scene_manager.currentScene.buttons["use"].click()
+                    self.ap_not_enough = False
+                    await asyncio.sleep(.5)
+                else:
+                    self.green_tea_not_enough = True
+                    self.stop()
         self.scene_manager.currentScene.buttons["close"].click()
         await asyncio.sleep(1)
 
