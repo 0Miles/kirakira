@@ -190,8 +190,8 @@ class ActionBase():
             # 初始化處理器狀態
             for handlers in self.scene_handlers.values():
                 for handler in handlers:
-                    if handler not in self._handler_states:
-                        self._handler_states[handler] = HandlerState(handler=handler)
+                    self._handler_states[handler] = HandlerState(handler=handler)
+    
             while self._running:
                 await self.process()
                 await asyncio.sleep(0.1)
