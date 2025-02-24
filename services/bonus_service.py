@@ -71,7 +71,7 @@ class BonusService(ServiceBase):
         target_num_region = (num_x, num_y, num_w, num_h)
         target_num_screenshot = screenshot[target_num_region[1]:target_num_region[1]+target_num_region[3], 
                                         target_num_region[0]:target_num_region[0]+target_num_region[2]]
-        target_num = self.scene_manager.find_first_matching_template_key(target_num_screenshot, target_num_template) or "12"
+        target_num = self.scene_manager.find_first_matching_template_key(target_num_screenshot, target_num_template) or "7"
 
         # 獎勵卡設置
         bonus_card_list = [
@@ -134,7 +134,7 @@ class BonusService(ServiceBase):
 
         return {
             "star_rank": safe_int(star_rank, self.prev_star_rank),
-            "target_num": safe_int(target_num, 12),
+            "target_num": safe_int(target_num, 7),
             "current_bonus": current_bonus,
             "next_bonuses": next_bonuses
         }
