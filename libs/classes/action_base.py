@@ -3,6 +3,7 @@ from typing import Optional, Dict, Callable, Any, List, Union, TypeVar, cast
 from typing import TYPE_CHECKING
 import inspect
 from libs.logger import logger
+from dataclasses import dataclass
 
 if TYPE_CHECKING:
     from libs.scene_manager import SceneManager
@@ -17,7 +18,7 @@ def loop(scene_id: str):
             if not isinstance(self, ActionBase):
                 raise TypeError("This decorator can only be used with ActionBase subclasses")
             await func(self, *args, **kwargs)
-            self._again()
+            self.again()
         setattr(wrapper, '_scene_id', scene_id)
         setattr(wrapper, '_is_handler', True)
         return cast(T, wrapper)
@@ -50,22 +51,29 @@ def once(scene_id: str, wait_for: Union[str, List[str], None] = None, timeout: i
         return cast(T, wrapper)
     return decorator
 
+@dataclass
+class HandlerState:
+    """處理器狀態"""
+    waiting_for: Optional[List[str]] = None
+    waiting_timeout: int = 60
+    waiting_start_timestamp: Optional[float] = None
+    handler: Optional[Callable] = None
+    again_flag: bool = False  # 新增：處理器的重複執行標誌
+
 class ActionBase():
     def __init__(self, game: 'AppControl', scene_manager: 'SceneManager'):
         self.game = game
         self.scene_manager = scene_manager
         self._running = False
         self._task: Optional[asyncio.Task] = None
-        self.scene_handlers: Dict[str, Callable] = {}
+        self.scene_handlers: Dict[str, List[Callable]] = {}
         self._scene_ids: List[str] = []
 
-        self._waiting_for: Optional[List[str]] = None
-        self._waiting_timeout: int = 60
-        self._waiting_start_timestamp: Optional[float] = None
-        self._again_flag = False
+        self._handler_states: Dict[Callable, HandlerState] = {}
+        self._current_handler: Optional[Callable] = None
+        self._refresh_failed_count = 0
 
         self._setup_scene_handlers()
-        self._refresh_failed_count = 0
 
     def _setup_scene_handlers(self):
         """自動註冊場景處理器"""
@@ -73,7 +81,9 @@ class ActionBase():
         for name, method in inspect.getmembers(self):
             if hasattr(method, '_is_handler'):
                 scene_id = getattr(method, '_scene_id')
-                self.scene_handlers[scene_id] = method
+                if scene_id not in self.scene_handlers:
+                    self.scene_handlers[scene_id] = []
+                self.scene_handlers[scene_id].append(method)
                 if scene_id not in self._scene_ids:
                     self._scene_ids.append(scene_id)
 
@@ -91,24 +101,43 @@ class ActionBase():
             await self.on_unknown_scene()
             return
         
-        if self._waiting_for and not self._again_flag:
-            scene_id = self.scene_manager.currentScene.scene_id
-            if scene_id in self._waiting_for:
-                self._waiting_for = None
-            elif asyncio.get_event_loop().time() - self._waiting_start_timestamp > self._waiting_timeout:
-                self._waiting_for = None
-                logger.warning(f"等待超時: {self._waiting_timeout}s")
-            else:
-                await asyncio.sleep(.5)
-                return
-
         scene_id = self.scene_manager.currentScene.scene_id
-        handler = self.scene_handlers.get(scene_id)
         
-        if handler:
-            logger.info(f"已找到 {scene_id} 對應的 Handler")
-            self._again_flag = False
-            await handler()
+        # 更新所有處理器的等待狀態
+        for state in list(self._handler_states.values()):
+            if state.waiting_for and scene_id in state.waiting_for:
+                # 等待條件滿足，清除等待狀態
+                state.waiting_for = None
+            elif (state.waiting_for and state.waiting_start_timestamp and 
+                  asyncio.get_event_loop().time() - state.waiting_start_timestamp > state.waiting_timeout):
+                logger.error(f"場景處理器等待超時: {state.waiting_timeout}s")
+                raise Exception(f"場景處理器等待超時: {state.waiting_timeout}s")
+        
+        handlers = self.scene_handlers.get(scene_id, [])
+        
+        if handlers:
+            logger.info(f"已找到 {scene_id} 對應的 {len(handlers)} 個 Handler")
+            
+            # 執行所有處理器
+            for handler in handlers:
+                self._current_handler = handler
+                state = self._handler_states.get(handler)
+                if not state:
+                    state = HandlerState(handler=handler)
+                    self._handler_states[handler] = state
+                
+                # 檢查處理器是否在等待狀態
+                if state.waiting_for and not state.again_flag:
+                    logger.debug(f"等待場景 {state.waiting_for} 出現，跳過此次處理")
+                    continue
+                        
+                # 清除重複執行標誌
+                state.again_flag = False
+
+                # 執行處理器
+                await handler()
+                
+            self._current_handler = None
         else:
             logger.info(f"出現未註冊的場景: {scene_id}")
             await self.on_unhandled_scene()
@@ -158,8 +187,11 @@ class ActionBase():
         self._running = True
         try:
             await self.on_start()
-            # 初始化等待標誌
-            self._waiting_for = None
+            # 初始化處理器狀態
+            for handlers in self.scene_handlers.values():
+                for handler in handlers:
+                    if handler not in self._handler_states:
+                        self._handler_states[handler] = HandlerState(handler=handler)
             while self._running:
                 await self.process()
                 await asyncio.sleep(0.1)
@@ -198,11 +230,18 @@ class ActionBase():
             scene_ids: 單一場景ID或場景ID列表
             timeout: 等待超時時間（秒）
         """
+        if not self._current_handler:
+            return
+            
         if isinstance(scene_ids, str):
             scene_ids = [scene_ids]
-        self._waiting_for = scene_ids
-        self._waiting_timeout = timeout
-        self._waiting_start_timestamp = asyncio.get_event_loop().time()
+            
+        state = self._handler_states.get(self._current_handler)
+            
+        state.waiting_for = scene_ids
+        state.waiting_timeout = timeout
+        state.waiting_start_timestamp = asyncio.get_event_loop().time()
+        state.handler = self._current_handler
 
     def set_idle_until_next(self, timeout: int = 60):
         """
@@ -221,8 +260,16 @@ class ActionBase():
         """
         self.set_idle_until([scene_id for scene_id in self.scene_manager.scenes if scene_id != self.scene_manager.currentScene.scene_id])
     
-    def _again(self):
+    def again(self):
         """
         不進入閒置等待直到場景發生變化
         """
-        self._again_flag = True
+        if not self._current_handler:
+            return
+            
+        state = self._handler_states.get(self._current_handler)
+        if not state:
+            state = HandlerState(handler=self._current_handler)
+            self._handler_states[self._current_handler] = state
+            
+        state.again_flag = True
