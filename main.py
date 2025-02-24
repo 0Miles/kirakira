@@ -4,6 +4,7 @@ from libs.puppeteer import Puppeteer
 from libs.scene_manager import SceneManager
 from libs.steam_control import SteamControl
 from libs.app_control import AppControl
+from libs.logger import logger
 import config
 
 if TYPE_CHECKING:
@@ -34,15 +35,14 @@ async def main():
     # 開始執行動作
     while True:
         if not game.is_app_running():
-            # 透過 Steam 啟動遊戲
-            print(f"[INFO] 正在透過 Steam 啟動遊戲: {config.GAME_NAME}...")
+            logger.info(f"正在透過 Steam 啟動遊戲: {config.GAME_NAME}...")
             steam.start_game()
 
             # 檢測遊戲是否已開啟完畢
             while not game.is_app_running():
-                print("[INFO] 遊戲尚未啟動，等待 5 秒後再次檢查...")
+                logger.info("遊戲尚未啟動，等待 5 秒後再次檢查...")
                 await asyncio.sleep(5)
-            print("[INFO] 遊戲啟動完成。")
+            logger.info("遊戲啟動完成。")
 
         try:
             await puppeteer.start_action("GoToDiethelm")
@@ -59,7 +59,7 @@ async def main():
                     game.close_app()
                     find_sandbag.green_tea_not_enough = False
                     find_sandbag.ap_not_enough = False
-                    print("[INFO] 關閉遊戲，等待30分鐘後再開")
+                    logger.info("關閉遊戲，等待30分鐘後再開")
                     await asyncio.sleep(1800)
                 else:
                     if config.BONUS_GAME_TARGET == "basic":
@@ -67,7 +67,7 @@ async def main():
                     elif config.BONUS_GAME_TARGET == "star_rank":
                         await puppeteer.start_action("BonusGameStarRankMode")
         except Exception as e:
-            print(f"[ERROR] 發生錯誤: {e}")
+            logger.error(f"發生錯誤: {e}")
             # 關閉遊戲等待重啟，避免腳本卡住
             try:
                 game.close_app()

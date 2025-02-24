@@ -2,6 +2,7 @@ import config
 from libs.classes.action_base import ActionBase, once, loop
 from services.bonus_service import BonusService
 import asyncio
+from libs.logger import logger
 
 class BonusGameStarRankMode(ActionBase):
     bonus_service: BonusService
@@ -20,7 +21,7 @@ class BonusGameStarRankMode(ActionBase):
         star_rank = bonus_info.get("star_rank", self.bonus_service.prev_star_rank)
 
         if star_rank < 70:
-            print(f"[INFO] star_rank < 70: {star_rank}")
+            logger.info(f"star_rank < 70: {star_rank}")
             # 戰敗的場合，直接關閉遊戲
             self.stop()
             self.game.close_app()
@@ -41,7 +42,7 @@ class BonusGameStarRankMode(ActionBase):
             self.scene_manager.currentScene.buttons["use-item"].click()
         else:
             if config.BONUS_GAME_WHEN_FAILED_END == "close":
-                print("[INFO] 關閉遊戲")
+                logger.info("關閉遊戲")
                 self.stop()
                 self.game.close_app()
             elif config.BONUS_GAME_WHEN_FAILED_END == "exit":
@@ -52,23 +53,23 @@ class BonusGameStarRankMode(ActionBase):
     @once("result_bonus-failed_use-item-dialog")
     async def handle_result_bonus_failed_use_item_dialog(self):
         for use_item in config.BONUS_GAME_USE_ITEM_WHEN_FAILED:
-            print(f"[INFO] 尋找: {use_item}")
+            logger.info(f"尋找: {use_item}")
             click_item_result = await self.bonus_service.click_bonus_item(use_item)
             await asyncio.sleep(.5)
             if click_item_result:
-                print(f"[INFO] 嘗試使用: {use_item}")
+                logger.info(f"嘗試使用: {use_item}")
                 click_use_result = await self.scene_manager.currentScene.buttons["use"].try_wait_click(3, .5)
                 if click_use_result:
                     break
             else:
-                print(f"[INFO] 未找到: {use_item}")
-                print(f"[INFO] 退回基本模式")
+                logger.info(f"未找到: {use_item}")
+                logger.info("退回基本模式")
                 # 缺少其中一種道具時，退回基本模式，避免發生用把花5當花1用的浪費情況
                 config.BONUS_GAME_TARGET = "basic" # 基本模式
                 config.BONUS_GAME_TARGET_ITEMS = ["green-tea", "gem"]
 
                 if config.BONUS_GAME_WHEN_FAILED_END == "close":
-                    print("[INFO] 關閉遊戲")
+                    logger.info("關閉遊戲")
                     self.game.close_app()
                     self.stop()
                 elif config.BONUS_GAME_WHEN_FAILED_END == "exit":
@@ -80,6 +81,6 @@ class BonusGameStarRankMode(ActionBase):
     @once("error")
     async def handle_error(self):
         """處理錯誤並關閉遊戲"""
-        print("[INFO] 出現錯誤畫面，關閉遊戲")
+        logger.info("出現錯誤畫面，關閉遊戲")
         self.stop()
         self.game.close_app()

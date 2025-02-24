@@ -2,6 +2,7 @@ import config
 from libs.classes.action_base import ActionBase, once, loop
 from services.bonus_service import BonusService
 import asyncio
+from libs.logger import logger
 
 class BonusGameBasicMode(ActionBase):
     bonus_service: BonusService
@@ -17,7 +18,7 @@ class BonusGameBasicMode(ActionBase):
         star_rank = bonus_info.get("star_rank", self.bonus_service.prev_star_rank)
 
         if star_rank < 70:
-            print(f"[INFO] star_rank < 70: {star_rank}")
+            logger.info(f"star_rank < 70: {star_rank}")
             # 戰敗的場合，直接關閉遊戲
             self.stop()
             self.game.close_app()
@@ -43,6 +44,6 @@ class BonusGameBasicMode(ActionBase):
     @once("error")
     async def handle_error(self):
         """處理錯誤並關閉遊戲"""
-        print("[INFO] 出現錯誤畫面，關閉遊戲")
+        logger.info("出現錯誤畫面，關閉遊戲")
         self.stop()
         self.game.close_app()

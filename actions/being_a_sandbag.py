@@ -2,6 +2,7 @@ from libs.classes.action_base import ActionBase, once, loop
 from services.room_service import RoomService
 import asyncio
 import config
+from libs.logger import logger
 
 class BeingASandbag(ActionBase):
     room_service: RoomService
@@ -49,7 +50,7 @@ class BeingASandbag(ActionBase):
 
     @once("error")
     async def handle_error(self):
-        print("[INFO] 出現錯誤畫面，關閉遊戲")
+        logger.info("出現錯誤畫面，關閉遊戲")
         self.game.close_app()
         await asyncio.sleep(1)
         self.stop()

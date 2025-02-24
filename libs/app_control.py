@@ -12,6 +12,7 @@ import win32ui
 import pyperclip
 from ctypes import windll, c_int, pointer, Structure, byref, WINFUNCTYPE, c_int
 from ctypes.wintypes import RECT, DWORD
+from libs.logger import logger
 
 # 新增系統指標常數
 SM_CYCAPTION = 4       # 標題列高度
@@ -64,21 +65,21 @@ class AppControl:
             subprocess.Popen(app_path, shell=True)
             time.sleep(5)  # 等待應用啟動
         else:
-            print(f"{self.app_names} 之一已在運行中。")
+            logger.info(f"{self.app_names} 之一已在運行中。")
     
     def close_app(self):
         if not self.is_app_running():
-            print(f"{self.app_names} 未在運行。")
+            logger.info(f"{self.app_names} 未在運行。")
         found = False
         for process in psutil.process_iter(attrs=["pid", "name"]):
             for name in self.app_names:
                 if name.lower() in process.info["name"].lower():
                     os.kill(process.info["pid"], 9)
-                    print(f"{name} 已關閉。")
+                    logger.info(f"{name} 已關閉。")
                     found = True
                     break
         if not found:
-            print(f"{self.app_names} 未在運行。")
+            logger.info(f"{self.app_names} 未在運行。")
     
     def focus_window(self):
         try:
@@ -86,13 +87,13 @@ class AppControl:
                 windows = gw.getWindowsWithTitle(self.window_title)
                 if windows:
                     windows[0].activate()
-                    print(f"已將 {self.window_title} 視窗置於前台。")
+                    logger.info(f"已將 {self.window_title} 視窗置於前台。")
                 else:
-                    print(f"找不到視窗: {self.window_title}")
+                    logger.error(f"找不到視窗: {self.window_title}")
             else:
-                print("未指定視窗標題。")
+                logger.error("未指定視窗標題。")
         except Exception as e:
-            print("發生錯誤:", e)
+            logger.error(f"發生錯誤: {e}")
 
     def get_window_geometry(self):
         if self.window_title:
@@ -145,7 +146,7 @@ class AppControl:
                 "frame_height": total_frame_y
             }
         except Exception as e:
-            print(f"[ERROR] 無法獲取系統視窗框架尺寸: {e}")
+            logger.error(f"無法獲取系統視窗框架尺寸: {e}")
             return None
 
     def get_window_size_info(self, hwnd = None):
@@ -154,7 +155,7 @@ class AppControl:
                 # 獲取視窗句柄
                 hwnd = hwnd if hwnd else win32gui.FindWindow(None, self.window_title)
                 if not hwnd:
-                    print(f"[ERROR] 找不到視窗: {self.window_title}")
+                    logger.error(f"找不到視窗: {self.window_title}")
                     return None
                 
                 # 獲取視窗和客戶區域矩形
@@ -179,7 +180,7 @@ class AppControl:
                 }
 
             except Exception as e:
-                print(f"[ERROR] 無法獲取視窗資訊: {e}")
+                logger.error(f"無法獲取視窗資訊: {e}")
                 return None
 
     def capture_screen(self):
@@ -189,7 +190,7 @@ class AppControl:
                 # 獲取視窗句柄
                 hwnd = win32gui.FindWindow(None, self.window_title)
                 if not hwnd:
-                    print(f"[ERROR] 找不到視窗: {self.window_title}")
+                    logger.error(f"找不到視窗: {self.window_title}")
                     return None
 
                 # 獲取視窗大小
@@ -219,7 +220,7 @@ class AppControl:
                     img = np.frombuffer(bmpstr, dtype='uint8')
                     img.shape = (height, width, 4)
                 else:
-                    print(f"[ERROR] PrintWindow 失敗，錯誤碼: {win32api.GetLastError()}")
+                    logger.error(f"PrintWindow 失敗，錯誤碼: {win32api.GetLastError()}")
                     return None
 
                 # 清理資源
@@ -228,7 +229,7 @@ class AppControl:
                 mfc_dc.DeleteDC()
                 win32gui.ReleaseDC(hwnd, hwnd_dc)
 
-                # 轉換為 BGR 格式並處理 DPI 縮放
+                # 轉換為 BGR 格式並處理 DPI 縩放
                 img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
                 if dpi_scale != 1.0:
                     new_width = int(width / dpi_scale)
@@ -237,7 +238,7 @@ class AppControl:
                 return img
 
             except Exception as e:
-                print(f"[ERROR] 截圖時發生錯誤: {e}")
+                logger.error(f"截圖時發生錯誤: {e}")
                 return None
         return None
     
@@ -247,7 +248,7 @@ class AppControl:
             # 獲取目標視窗的句柄
             hwnd = win32gui.FindWindow(None, self.window_title)
             if not hwnd:
-                print(f"[ERROR] 找不到視窗: {self.window_title}")
+                logger.error(f"找不到視窗: {self.window_title}")
                 return False
 
             # 獲取視窗的客戶區域位置
@@ -255,7 +256,7 @@ class AppControl:
             
             # 確保點擊位置在視窗範圍內
             if not (0 <= x <= (right - left) and 0 <= y <= (bottom - top)):
-                print(f"[ERROR] 點擊位置 ({x}, {y}) 超出視窗範圍")
+                logger.error(f"點擊位置 ({x}, {y}) 超出視窗範圍")
                 return False
 
             # 發送滑鼠事件
@@ -268,7 +269,7 @@ class AppControl:
             return True
             
         except Exception as e:
-            print(f"[ERROR] 無法點擊 {self.window_title}: {e}")
+            logger.error(f"無法點擊 {self.window_title}: {e}")
             return False
 
     def input_text(self, text, x, y, max_retries=3):
@@ -277,7 +278,7 @@ class AppControl:
             try:
                 hwnd = win32gui.FindWindow(None, self.window_title)
                 if not hwnd:
-                    print(f"[ERROR] 找不到視窗: {self.window_title}")
+                    logger.error(f"找不到視窗: {self.window_title}")
                     return False
 
                 # 先準備新文字到剪貼簿
@@ -317,13 +318,13 @@ class AppControl:
                 time.sleep(0.1)
                 pyperclip.copy(original_clipboard)
                 
-                print(f"[INFO] 已在 {self.window_title} ({x}, {y}) 輸入文字: {text}")
+                logger.info(f"已在 {self.window_title} ({x}, {y}) 輸入文字: {text}")
                 return True
                 
             except Exception as e:
-                print(f"[WARNING] 第 {attempt + 1} 次嘗試輸入文字失敗: {e}")
+                logger.warning(f"第 {attempt + 1} 次嘗試輸入文字失敗: {e}")
                 time.sleep(1)
                 continue
                 
-        print(f"[ERROR] 在 {max_retries} 次嘗試後仍無法在 {self.window_title} 輸入文字")
+        logger.error(f"在 {max_retries} 次嘗試後仍無法在 {self.window_title} 輸入文字")
         return False

@@ -10,6 +10,7 @@ from libs.image_processor import ImageProcessor
 from libs.ocr_processor import OCRProcessor
 from libs.classes.scene import Scene
 from libs.constants import SCENES_DIR, TEMPLATES_DIR
+from libs.logger import logger
 
 class SceneManager:
     def __init__(self, game: AppControl, template_origin_client_size=None, title_bar_height=0, frame_left=0):
@@ -62,7 +63,7 @@ class SceneManager:
         
         window_size_info = self.game.get_window_size_info()
         if not window_size_info:
-            print("[WARNING] 無法獲取視窗資訊，使用預設比例 1")
+            logger.warning("無法獲取視窗資訊，使用預設比例 1")
             self._scale_ratio = 1
             return
 
@@ -180,7 +181,7 @@ class SceneManager:
     async def refresh(self):
         window_geometry = self.game.get_window_geometry()
         if not window_geometry:
-            print("[ERROR] 無法獲取視窗大小與位置。")
+            logger.error("無法獲取視窗大小與位置。")
             await asyncio.sleep(3)
             return False
 
@@ -191,7 +192,7 @@ class SceneManager:
                 self.prevAvailableScene = self.currentScene
             self.currentScene = detected_scene
             if self.currentScene:
-                print(f"[SCENE] 場景切換: {self.currentScene.scene_id}")
+                logger.info(f"場景切換: {self.currentScene.scene_id}")
                 if hasattr(self.currentScene, "execute_actions"):
                     self.currentScene.execute_actions()
         return True

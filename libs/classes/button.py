@@ -1,5 +1,6 @@
 import asyncio
 from typing import TYPE_CHECKING
+from libs.logger import logger
 
 if TYPE_CHECKING:
     from libs.scene_manager import SceneManager
@@ -26,7 +27,7 @@ class Button:
                 for template in self.template:
                     search_region = None
                     if self.region:
-                        print(f"[INFO] 使用指定區域進行匹配: {self.region}")
+                        logger.info(f"使用指定區域進行匹配: {self.region}")
                         search_region = self.scene_manager.get_safe_client_region(*self.region)
                     
                     # 先進行灰階匹配
@@ -41,7 +42,7 @@ class Button:
                     if gray_matches and len(gray_matches) > 0:
                         # 如果需要彩色匹配，在每個灰階匹配位置嘗試彩色匹配
                         if self.color:
-                            print(f"[INFO] 嘗試彩色匹配: {self.button_id}, 找到 {len(gray_matches)} 個灰階匹配")
+                            logger.info(f"嘗試彩色匹配: {self.button_id}, 找到 {len(gray_matches)} 個灰階匹配")
                             found_color_match = False
                             for gray_match in gray_matches:
                                 x, y, w, h = gray_match
@@ -57,14 +58,14 @@ class Button:
                                 if color_matches and len(color_matches) > 0:
                                     target_match = gray_match
                                     found_color_match = True
-                                    print(f"[INFO] 找到彩色匹配位置: {self.button_id} at {target_match}")
+                                    logger.info(f"找到彩色匹配位置: {self.button_id} at {target_match}")
                                     break
                             
                             if not found_color_match:
-                                print(f"[WARNING] 未找到符合的彩色匹配位置: {self.button_id}")
+                                logger.warning(f"未找到符合的彩色匹配位置: {self.button_id}")
                                 continue
                         else:
-                            print(f"[INFO] 使用灰階匹配位置: {self.button_id} ({len(gray_matches)} 個匹配)")
+                            logger.info(f"使用灰階匹配位置: {self.button_id} ({len(gray_matches)} 個匹配)")
                             target_match = gray_matches[0]
                             break
     
@@ -82,33 +83,33 @@ class Button:
                     click_success = self.scene_manager.game.click(click_x, click_y)
                     
                     if click_success:
-                        print(f"[INFO] 點擊按鈕: {self.button_id} at ({click_x}, {click_y})")
+                        logger.info(f"點擊按鈕: {self.button_id} at ({click_x}, {click_y})")
                         self.prev_success_position = (click_x, click_y)
                         return True
                     else:
-                        print(f"[WARNING] 按鈕 {self.button_id} 點擊失敗")
+                        logger.warning(f"按鈕 {self.button_id} 點擊失敗")
                         return False
                 except (IndexError, TypeError) as e:
-                    print(f"[ERROR] 按鈕 {self.button_id} 計算點擊位置時發生錯誤: {e}")
+                    logger.error(f"按鈕 {self.button_id} 計算點擊位置時發生錯誤: {e}")
                     return False
 
-            print(f"[WARNING] 未找到按鈕 {self.button_id} 的匹配項")
+            logger.warning(f"未找到按鈕 {self.button_id} 的匹配項")
             return False
         except Exception as e:
-            print(f"[ERROR] 點擊按鈕 {self.button_id} 時發生錯誤: {e}")
+            logger.error(f"點擊按鈕 {self.button_id} 時發生錯誤: {e}")
             return False
 
     async def wait_click(self, max_retry=10, interval=1):
         start_scene_id = self.scene_manager.currentScene.scene_id if self.scene_manager.currentScene else None
         for i in range(max_retry):
-            print(f"[INFO] 等待點擊按鈕 {self.button_id} {i}/{max_retry}")
+            logger.info(f"等待點擊按鈕 {self.button_id} {i}/{max_retry}")
             if self.click():
-                print(f"[INFO] 點擊按鈕 {self.button_id} 成功")
+                logger.info(f"點擊按鈕 {self.button_id} 成功")
                 return True
             await asyncio.sleep(interval)
             check_scene = await self.scene_manager.check_current_screen()
             if not check_scene or check_scene.scene_id != start_scene_id:
-                print(f"[INFO] 已轉場，停止等待按鈕 {self.button_id}")
+                logger.info(f"已轉場，停止等待按鈕 {self.button_id}")
                 return True
         raise Exception(f"無法點擊按鈕 {self.button_id} (重試 {max_retry} 次)")
     
@@ -117,14 +118,14 @@ class Button:
         try:
             return await self.wait_click(max_retry, interval)
         except Exception as e:
-            print(f"[WARNING] {e}")
+            logger.warning(f"{e}")
             return False
     
     def click_prev_success_position(self):
         if self.prev_success_position:
             click_x, click_y = self.prev_success_position
             if self.scene_manager.game.click(click_x, click_y):
-                print(f"[INFO] 點擊按鈕: {self.button_id} at ({click_x}, {click_y})")
+                logger.info(f"點擊按鈕: {self.button_id} at ({click_x}, {click_y})")
                 return True
-        print(f"[WARNING] 無法點擊按鈕 {self.button_id} (未記錄上次成功的位置)")
+        logger.warning(f"無法點擊按鈕 {self.button_id} (未記錄上次成功的位置)")
         return False

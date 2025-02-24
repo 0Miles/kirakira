@@ -49,7 +49,7 @@ class OCRProcessor:
         :return: 識別到的文字列表
         """
         if not result:
-            print("[WARNING] OCR 未能識別任何內容")
+            logger.warning("OCR 未能識別任何內容")
             return []  # 確保返回可迭代的空列表
         
         parsed_text = []

@@ -1,5 +1,6 @@
 import asyncio
 from libs.classes.action_base import ActionBase, once, loop
+from libs.logger import logger
 
 class GoToDiethelm(ActionBase):
     @loop("title-screen")
@@ -27,11 +28,11 @@ class GoToDiethelm(ActionBase):
 
     @once("matching_diethelm")
     async def handle_matching_diethelm(self):
-        print("[INFO] 已進入 Diethelm")
+        logger.info("已進入 Diethelm")
         self.stop()
 
     @once("error")
     async def handle_error(self):
-        print("[INFO] 出現錯誤畫面，關閉遊戲")
+        logger.info("出現錯誤畫面，關閉遊戲")
         self.stop()
         self.game.close_app()

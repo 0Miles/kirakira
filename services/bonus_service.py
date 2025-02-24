@@ -1,6 +1,7 @@
 import asyncio
 import config
 from libs.classes.service_base import ServiceBase
+from libs.logger import logger
 
 class BonusService(ServiceBase):
     async def click_bonus_item(self, item_name: str):
@@ -143,13 +144,13 @@ class BonusService(ServiceBase):
         """處理 high-low 的選擇"""
         bonus_info = self.check_bonus_info()
         target_num = bonus_info.get("target_num")
-        print(f"[INFO] 目標數字: {target_num}")
+        logger.info(f"目標數字: {target_num}")
         
         if target_num > 7:
-            print(f"[INFO] 選擇 low")
+            logger.info("選擇 low")
             self.scene_manager.currentScene.buttons["low"].click()
         else:
-            print(f"[INFO] 選擇 high")
+            logger.info("選擇 high")
             self.scene_manager.currentScene.buttons["high"].click()
 
     async def handle_bonus_select(self, info = None):
@@ -167,9 +168,9 @@ class BonusService(ServiceBase):
         else:
             target_items = config.BONUS_GAME_TARGET_ITEMS if config.BONUS_GAME_TARGET_ITEMS else []
 
-        print(f"[INFO] 目前星等: {star_rank}")
-        print(f"[INFO] 目前獎勵: {current_bonus}, 接下來的獎勵: {bonus_info.get('next_bonuses', [])}")
-        print(f"[INFO] 目標獎勵: {target_items}")
+        logger.info(f"目前星等: {star_rank}")
+        logger.info(f"目前獎勵: {current_bonus}, 接下來的獎勵: {bonus_info.get('next_bonuses', [])}")
+        logger.info(f"目標獎勵: {target_items}")
 
         if current_bonus and any(target_item for target_item in target_items if target_item in current_bonus):
             self.scene_manager.currentScene.buttons["get"].click()

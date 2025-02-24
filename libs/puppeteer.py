@@ -8,6 +8,7 @@ from libs.classes.service_base import ServiceBase
 from libs.constants import ACTIONS_DIR, SERVICES_DIR
 from libs.app_control import AppControl
 from libs.scene_manager import SceneManager
+from libs.logger import logger
 
 class Puppeteer:
     def __init__(self, game: AppControl, scene_manager: SceneManager = None):
@@ -23,7 +24,7 @@ class Puppeteer:
         await self.load_services()
         # 然後載入所有動作
         await self.load_actions()
-        print("[INFO] Puppeteer 初始化完成")
+        logger.info("Puppeteer 初始化完成")
 
     async def load_services(self) -> None:
         if not os.path.exists(SERVICES_DIR):
@@ -43,10 +44,10 @@ class Puppeteer:
                             # 創建服務實例
                             service_instance = obj(scene_manager=self.scene_manager)
                             self.services[obj.__name__] = service_instance
-                            print(f"[INFO] 已載入服務: {obj.__name__}")
+                            logger.info(f"已載入服務: {obj.__name__}")
                             
                 except Exception as e:
-                    print(f"[ERROR] 載入服務 {module_name} 時發生錯誤: {e}")
+                    logger.error(f"載入服務 {module_name} 時發生錯誤: {e}")
 
     def _inject_dependencies(self, instance: Any) -> None:
         # 獲取類的 __annotations__ (類型註解)
@@ -84,10 +85,10 @@ class Puppeteer:
                             self._inject_dependencies(action_instance)
                             
                             self.actions[name] = action_instance
-                            print(f"[INFO] 已載入動作: {name}")
+                            logger.info(f"已載入動作: {name}")
                             
                 except Exception as e:
-                    print(f"[ERROR] 載入動作 {module_name} 時發生錯誤: {e}")
+                    logger.error(f"載入動作 {module_name} 時發生錯誤: {e}")
 
     def get_action(self, action_name: str) -> Optional[ActionBase]:
         return self.actions.get(action_name)
@@ -96,10 +97,10 @@ class Puppeteer:
         self.scene_manager.check_window_size_info()
         script = self.get_action(action_name)
         if script:
-            print(f"[INFO] 開始執行動作: {action_name}")
+            logger.info(f"開始執行動作: {action_name}")
             await script.run()
             return True
-        print(f"[WARNING] 找不到動作: {action_name}")
+        logger.warning(f"找不到動作: {action_name}")
         return False
 
     def stop_action(self, action_name: str) -> bool:
@@ -109,17 +110,17 @@ class Puppeteer:
                 script.stop()
                 return True
             except Exception as e:
-                print(f"[ERROR] 停止動作 {action_name} 時發生錯誤: {e}")
+                logger.error(f"停止動作 {action_name} 時發生錯誤: {e}")
                 return False
         return False
 
     def stop_all_actions(self) -> None:
-        print(f"[INFO] 正在停止所有動作")
+        logger.info(f"正在停止所有動作")
         for action_name, script in self.actions.items():
             try:
                 script.stop()
             except Exception as e:
-                print(f"[ERROR] 停止動作 {action_name} 時發生錯誤: {e}")
+                logger.error(f"停止動作 {action_name} 時發生錯誤: {e}")
 
     def list_available_actions(self) -> list[str]:
         return list(self.actions.keys())

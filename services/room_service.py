@@ -2,6 +2,7 @@ import asyncio
 import re
 import time
 from libs.classes.service_base import ServiceBase
+from libs.logger import logger
 
 class RoomService(ServiceBase):
     def check_room_list(self):
@@ -66,9 +67,9 @@ class RoomService(ServiceBase):
                         "position": position
                     })
                 except Exception as e:
-                    print(f"[WARNING] 處理房間資訊時發生錯誤: {e}")
+                    logger.warning(f"處理房間資訊時發生錯誤: {e}")
                     continue
-        print(f"[INFO] 房間列表:")
+        print("房間列表:")
         for room in room_list:
             print(f"  - {room['owner']}: {room['room_name']}, guest: {room['guest']} isFull: {room['is_full']}")
 
@@ -170,7 +171,7 @@ class RoomService(ServiceBase):
                 "has_second_player": has_second_player
             }
         except Exception as e:
-            print(f"[ERROR] check_room_info 發生錯誤: {e}")
+            logger.error(f"check_room_info 發生錯誤: {e}")
             return None
 
 

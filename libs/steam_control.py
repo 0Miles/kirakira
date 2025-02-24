@@ -2,6 +2,7 @@ import subprocess
 import psutil
 import winreg
 import os
+from libs.logger import logger
 
 class SteamControl:
     def __init__(self, default_game_id):
@@ -26,7 +27,7 @@ class SteamControl:
             if os.path.exists(steam_exe):
                 return steam_exe
         except Exception as e:
-            print(f"無法從登錄檔讀取 Steam 路徑: {e}")
+            logger.error(f"無法從登錄檔讀取 Steam 路徑: {e}")
             
         # 如果登錄檔讀取失敗，嘗試預設路徑
         default_paths = [
@@ -46,17 +47,17 @@ class SteamControl:
             if steam_path:
                 try:
                     subprocess.Popen([steam_path])
-                    print("正在啟動 Steam...")
+                    logger.info("正在啟動 Steam...")
                 except Exception as e:
-                    print(f"啟動 Steam 時發生錯誤: {e}")
+                    logger.error(f"啟動 Steam 時發生錯誤: {e}")
             else:
-                print("找不到 Steam 安裝路徑")
+                logger.error("找不到 Steam 安裝路徑")
         else:
-            print("Steam 已在運行中。")
+            logger.info("Steam 已在運行中。")
     
     def start_game(self, game_id=None):
         start_game_id = game_id if game_id else self.default_game_id
         if not self.is_steam_running():
             self.start_steam()
         subprocess.Popen(f"start steam://rungameid/{start_game_id}", shell=True)
-        print(f"正在啟動遊戲 (ID: {start_game_id})...")
+        logger.info(f"正在啟動遊戲 (ID: {start_game_id})...")

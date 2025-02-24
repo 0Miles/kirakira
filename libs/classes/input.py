@@ -2,6 +2,7 @@ import os
 import time
 from typing import List, Union, Tuple, TYPE_CHECKING
 from libs.constants import TEMPLATES_DIR
+from libs.logger import logger
 
 if TYPE_CHECKING:
     from libs.scene_manager import SceneManager
@@ -46,7 +47,7 @@ class Input:
                 break
         
         if not match_label:
-            print(f"[WARNING] 未找到標籤 {self.label_template}")
+            logger.warning(f"未找到標籤 {self.label_template}")
             return None
         label_x, label_y, label_w, label_h = match_label
         
@@ -70,10 +71,10 @@ class Input:
                     closest_input = (input_x, input_y, input_w, input_h)
         
         if closest_input:
-            print(f"[INFO] 找到Input {self.input_template} 位置: {closest_input}")
+            logger.info(f"找到Input {self.input_template} 位置: {closest_input}")
             return closest_input
         
-        print(f"[WARNING] 未找到Input {self.input_template} 附近標籤 {self.label_template}")
+        logger.warning(f"未找到Input {self.input_template} 附近標籤 {self.label_template}")
         return None
 
     def click(self) -> bool:
@@ -84,9 +85,9 @@ class Input:
             click_x = x + w // 2
             click_y = y + h // 2
             if self.scene_manager.game.click(click_x, click_y):
-                print(f"[INFO] 點擊Input {self.input_id}")
+                logger.info(f"點擊Input {self.input_id}")
                 return True
-        print(f"[ERROR] 無法點擊Input {self.input_id}")
+        logger.error(f"無法點擊Input {self.input_id}")
         return False
 
 
@@ -99,7 +100,7 @@ class TextInput(Input):
             screenshot = self.scene_manager.game.capture_screen()
             input_region = screenshot[y:y+h, x:x+w]
             return self.scene_manager.ocr_processor.process_screenshot(input_region)
-        print(f"[WARNING] 無法讀取Input {self.input_id} 內的文字")
+        logger.warning(f"無法讀取Input {self.input_id} 內的文字")
         return ""
     
     def change_text(self, text: str) -> bool:
@@ -110,7 +111,7 @@ class TextInput(Input):
             click_x = x + w // 2
             click_y = y + h // 2
             return self.scene_manager.game.input_text(text, click_x, click_y)
-        print(f"[ERROR] 無法更改Input {self.input_id} 內容")
+        logger.error(f"無法更改Input {self.input_id} 內容")
         return False
 
 
@@ -126,9 +127,9 @@ class Select(Input):
                 click_x = x + w // 2
                 click_y = y + h // 2
                 if self.scene_manager.game.click(click_x, click_y):
-                    print(f"[INFO] 選擇選項 {option_template}")
+                    logger.info(f"選擇選項 {option_template}")
                     return True
-        print(f"[ERROR] 無法選擇選項 {option_template}")
+        logger.error(f"無法選擇選項 {option_template}")
         return False
 
 
@@ -151,10 +152,10 @@ class Checkbox(Input):
     def toggle(self) -> None:
         """ 切換Checkbox的狀態 """
         self.click()
-        print(f"[INFO] 切換Checkbox {self.input_id}")
+        logger.info(f"切換Checkbox {self.input_id}")
     
     def set_checked(self, state: bool) -> None:
         """ 設定Checkbox狀態 (勾選/取消勾選) """
         if self.is_checked() != state:
             self.toggle()
-        print(f"[INFO] 設定Checkbox {self.input_id} 為 {'勾選' if state else '未勾選'}")
+        logger.info(f"設定Checkbox {self.input_id} 為 {'勾選' if state else '未勾選'}")
