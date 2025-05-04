@@ -1,7 +1,7 @@
 {
     "scene_id": "matching_diethelm_wating-dialog",
     "template": [
-        "scenes/matching/title.png",
+        "scenes/matching/diethelm/wating/button-cancel.png",
         "scenes/matching/diethelm/wating/wating-left-bottom.png",
         "scenes/matching/diethelm/wating/wating-right-bottom.png",
         "scenes/matching/diethelm/wating/wating-top.png"
