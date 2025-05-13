@@ -2,6 +2,7 @@
     "scene_id": "fighting_surrender-dialog",
     "template": [
         "scenes/fighting/surrender-dialog/dialog.png",
+        "scenes/fighting/surrender-dialog/button.png",
         ["scenes/button-ok.png", "scenes/button-ok-hover.png"]
     ],
     "button_configs": [
