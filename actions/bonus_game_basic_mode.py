@@ -35,7 +35,7 @@ class BonusGameBasicMode(ActionBase):
     @once("result_bonus-failed")
     async def handle_result_bonus_failed(self):
         self.stop()
-        self.scene_manager.currentScene.buttons["end"].click()
+        self.game.close_app()
 
     @once("result_bonus-failed_use-item-dialog")
     async def handle_result_bonus_failed_use_item_dialog(self):

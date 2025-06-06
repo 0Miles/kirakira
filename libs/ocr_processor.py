@@ -31,13 +31,20 @@ class OCRProcessor:
         :param region: (x, y, width, height) 指定區域，可選
         :return: 解析後的文字結果，包含文字與其位置（如果有提供區域）
         """
+
         offset_x, offset_y = 0, 0
         
         if region:
             x, y, w, h = region
+            if w <= 0 or h <= 0:
+                logger.warning(f"指定區域寬高為0: {region}，跳過 OCR，直接回傳空結果")
+                return []
             screenshot = screenshot[y:y+h, x:x+w]  # 裁剪區域
             offset_x, offset_y = x, y
-        
+        # 若裁剪後圖片寬或高為0，也直接回傳空結果
+        if screenshot is None or screenshot.shape[0] == 0 or screenshot.shape[1] == 0:
+            logger.warning(f"裁剪後圖片寬高為0: {region if region else '全圖'}，跳過 OCR，直接回傳空結果")
+            return []
         result = self.ocr.ocr(screenshot, cls=True)
         return self._parse_result_with_position(result, offset_x, offset_y) if region else self._parse_result(result)
     

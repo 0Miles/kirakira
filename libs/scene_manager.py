@@ -71,16 +71,39 @@ class SceneManager:
         client_height = window_size_info["client_rect"][3]
         dpi_scale = window_size_info["dpi_scale"]
 
+        # 防止除以零
+        if dpi_scale == 0:
+            logger.warning("DPI 比例為零，使用預設比例 1")
+            self._scale_ratio = 1
+            return
+
         # 計算實際的客戶區域尺寸（考慮 DPI 縮放）
         actual_width = int(client_width / dpi_scale)
         actual_height = int(client_height / dpi_scale)
 
-        if self._template_origin_client_size:
-            # 計算寬度和高度的縮放比例
-            width_ratio = actual_width / self._template_origin_client_size[0]
-            height_ratio = actual_height / self._template_origin_client_size[1]
+        if not self._template_origin_client_size or not isinstance(self._template_origin_client_size, (tuple, list)) or len(self._template_origin_client_size) != 2:
+            logger.warning("模板原始尺寸格式錯誤，使用預設比例 1")
+            self._scale_ratio = 1
+            return
 
-            self._scale_ratio = min(width_ratio, height_ratio)
+        # 防止除以零
+        if self._template_origin_client_size[0] == 0 or self._template_origin_client_size[1] == 0:
+            logger.warning("模板原始尺寸有零值，使用預設比例 1")
+            self._scale_ratio = 1
+            return
+        if actual_width == 0 or actual_height == 0:
+            logger.warning("實際客戶區域尺寸有零值，使用預設比例 1")
+            self._scale_ratio = 1
+            return
+        
+        # 計算寬度和高度的縮放比例
+        width_ratio = actual_width / self._template_origin_client_size[0]
+        height_ratio = actual_height / self._template_origin_client_size[1]
+
+        self._scale_ratio = min(width_ratio, height_ratio)
+        if self._scale_ratio <= 0:
+            logger.warning("計算出的縮放比例小於等於零，使用預設比例 1")
+            self._scale_ratio = 1
 
     def match_template(self, screenshot, template_path, threshold=0.8, region=None, color=False):
         offset_x, offset_y = 0, 0
