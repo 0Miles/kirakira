@@ -11,9 +11,11 @@ class Scene:
     scene_manager: 'SceneManager'
     button_configs: List[Dict] = []  # 定義按鈕結構 [{id: str, template: str | list, region: list, color: bool}]
     input_configs: List[Dict] = []  # 定義輸入框結構 [{id: str, type: str, label_template: str, offset: (x, y), input_template: str, position: str, checked_template: str | list}]
+    order: int = 0
 
-    def __init__(self, scene_manager: 'SceneManager' = None, scene_id: str = None, template: List[str] = None, button_configs: List[Dict] = None, input_configs: List[Dict] = None):
+    def __init__(self, scene_manager: 'SceneManager' = None, scene_id: str = None, template: List[str] = None, button_configs: List[Dict] = None, input_configs: List[Dict] = None, order: int = 0):
         self.scene_manager = scene_manager
+        self.order = order
         if scene_id is not None:
             self.scene_id = scene_id
         if template is not None:
@@ -35,7 +37,7 @@ class Scene:
                 button_config.get("position", None),
                 button_config.get("region", None),
                 button_config.get("color", False),
-                button_config.get("threshold", 0.9)
+                button_config.get("threshold", 0.8)
             )
         
         # 依據 input_configs 配置實例化不同類型的 Input

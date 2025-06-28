@@ -126,7 +126,7 @@ class SceneManager:
                 screenshot, 
                 os.path.join(TEMPLATES_DIR, template_path), 
                 threshold=threshold,
-                scale_ratio=self._scale_ratio
+                scale_ratio=1 # TODO: 縮放邏輯待修正，暫時直接使用 1
             )
 
         if match_region:
@@ -144,6 +144,7 @@ class SceneManager:
 
     def load_scenes(self) -> Dict[str, 'Scene']:
         scenes = {}
+        scene_list = []
         if os.path.exists(SCENES_DIR):
             # load scenes from Python files
             for filename in os.listdir(SCENES_DIR):
@@ -155,7 +156,7 @@ class SceneManager:
                             issubclass(obj, Scene) and 
                             obj != Scene):
                             scene_instance = obj(scene_manager=self)
-                            scenes[scene_instance.scene_id] = scene_instance
+                            scene_list.append(scene_instance)
 
             # load scenes from JSON files
             for filename in os.listdir(SCENES_DIR):
@@ -164,15 +165,21 @@ class SceneManager:
                     with open(config_path, "r", encoding="utf-8") as f:
                         config = json.load(f)
                     scene_id = config.get("scene_id", filename[:-5])
-                    if not scenes.get(scene_id):                        
+                    if not any(s.scene_id == scene_id for s in scene_list):
                         scene_instance = Scene(
                             scene_manager=self,
                             scene_id=scene_id,
                             template=config.get("template", []),
                             button_configs=config.get("button_configs", []),
-                            input_configs=config.get("input_configs", [])
+                            input_configs=config.get("input_configs", []),
+                            order=config.get("order", 0)
                         )
-                        scenes[scene_id] = scene_instance
+                        scene_list.append(scene_instance)
+
+        scene_list.sort(key=lambda s: getattr(s, 'order', 0))
+
+        for s in scene_list:
+            scenes[s.scene_id] = s
         return scenes
     
     def find_matching_scene(self, screenshot, parent_scene: Optional[str] = None) -> Optional['Scene']:
@@ -193,7 +200,7 @@ class SceneManager:
     def scene_has_changed(self):
         return self.currentScene and self.prevAvailableScene and self.currentScene.scene_id != self.prevAvailableScene.scene_id
 
-    async def check_current_screen(self):
+    def check_current_screen(self):
         screenshot = self.game.capture_screen()
         detected_scene = self.find_matching_scene(screenshot)
         if detected_scene:
@@ -208,8 +215,7 @@ class SceneManager:
             await asyncio.sleep(3)
             return False
 
-        screenshot = self.game.capture_screen()
-        detected_scene = self.find_matching_scene(screenshot)
+        detected_scene = self.check_current_screen()
         if detected_scene != self.currentScene:
             if not self.currentScene is None:
                 self.prevAvailableScene = self.currentScene
