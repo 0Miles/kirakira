@@ -1,9 +1,7 @@
 {
     "scene_id": "lobby",
     "template": [
-        "scenes/lobby/left-top.png",
-        "scenes/lobby/left-bottom.png",
-        "scenes/lobby/left.png"
+        "scenes/lobby/nav.png"
     ],
     "button_configs": [
         {

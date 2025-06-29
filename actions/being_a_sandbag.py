@@ -54,3 +54,9 @@ class BeingASandbag(ActionBase):
         self.game.close_app()
         await asyncio.sleep(1)
         self.stop()
+    
+    @loop("has-ok-button")
+    async def handle_has_ok_button(self):
+        if self.scene_manager.currentScene.buttons.get("ok"):
+            self.scene_manager.currentScene.buttons["ok"].click()
+        await asyncio.sleep(1)

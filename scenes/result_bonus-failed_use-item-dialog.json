@@ -5,7 +5,8 @@
             "scenes/result/bonus-failed/use-item-dialog/button-close.png",
             "scenes/result/bonus-failed/use-item-dialog/button-close-hover.png"
         ],
-        "scenes/result/bonus-failed/use-item-dialog/dotted-line.png"
+        "scenes/result/bonus-failed/use-item-dialog/dotted-line.png",
+        "scenes/result/bonus-failed/use-item-dialog/button-close.png"
     ],
     "button_configs": [
         {

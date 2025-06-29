@@ -1,0 +1,12 @@
+{
+    "template": [
+        ["scenes/button-ok.png", "scenes/button-ok-hover.png"]
+    ],
+    "button_configs": [
+        {
+            "id": "ok",
+            "template": ["scenes/button-ok.png", "scenes/button-ok-hover.png"]
+        }
+    ],
+    "order": 999
+}

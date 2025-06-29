@@ -107,7 +107,7 @@ class Button:
                 logger.info(f"點擊按鈕 {self.button_id} 成功")
                 return True
             await asyncio.sleep(interval)
-            check_scene = await self.scene_manager.check_current_screen()
+            check_scene = self.scene_manager.check_current_screen()
             if not check_scene or check_scene.scene_id != start_scene_id:
                 logger.info(f"已轉場，停止等待按鈕 {self.button_id}")
                 return True

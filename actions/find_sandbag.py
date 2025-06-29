@@ -108,3 +108,9 @@ class FindSandbag(ActionBase):
         logger.info("出現錯誤畫面，關閉遊戲")
         self.stop()
         self.game.close_app()
+
+    @loop("has-ok-button")
+    async def handle_has_ok_button(self):
+        if self.scene_manager.currentScene.buttons.get("ok"):
+            self.scene_manager.currentScene.buttons["ok"].click()
+        await asyncio.sleep(1)

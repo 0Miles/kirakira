@@ -1,10 +1,7 @@
 {
     "template": [
         "scenes/result/result.png",
-        [
-            "scenes/result/bonus-failed/button-use-item.png",
-            "scenes/result/bonus-failed/button-use-item-hover.png"
-        ]
+        "scenes/result/bonus-failed/button-use-item.png"
     ],
     "button_configs": [
         {

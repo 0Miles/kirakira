@@ -1,9 +1,7 @@
 {
     "scene_id": "matching",
     "template": [
-        "scenes/matching/title.png",
-        "scenes/matching/left-bottom.png",
-        "scenes/matching/right-top.png"
+        "scenes/matching/title.png"
     ],
     "button_configs": [
         {

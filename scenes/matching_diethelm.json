@@ -2,16 +2,14 @@
     "scene_id": "matching_diethelm",
     "template": [
         "scenes/matching/title.png",
-        "scenes/matching/left-bottom.png",
-        "scenes/matching/right-top.png",
         "scenes/matching/diethelm/title.png"
     ],
     "button_configs": [
         {
             "id": "create",
-            "template": [
-                "scenes/matching/diethelm/button-create.png",
-                "scenes/matching/diethelm/button-create-hover.png"
+            "position": [
+                366,
+                544
             ]
         },
         {
@@ -23,9 +21,7 @@
         },
         {
             "id": "item",
-            "template": [
-                "scenes/matching/diethelm/button-item.png"
-            ]
+            "position": [ 916, 737 ]
         }
     ]
 }
